@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KharchaWise</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+</head>
+
+<body>
+    <!-- Authorization -->
+    <div id="auth-container" class="centered">
+        
+
+        <div id="email-login-container">
+            <h1>KharchaWise</h1>
+            <input type="email" id="email-input" placeholder="Enter your email" required />
+            <input type="password" id="password-input" placeholder="Enter your password" required />
+            <button id="login-btn">Login</button>
+            <p>Don't have an account? <a href="#" id="show-signup">Sign Up</a></p>
+            <button id="google-signin-btn">
+                <i class="fab fa-google"></i> Sign in with Google
+            </button>
+            
+            
+            <div id="message-container"></div>
+        </div>
+
+        <div id="signup-container" style="display: none;">
+            <h1>KharchaWise</h1>
+            <input type="email" id="signup-email" placeholder="Enter your email" required />
+            <input type="password" id="signup-password" placeholder="Enter your password" required />
+            <button id="signup-btn">Sign Up</button>
+            <p>Already have an account? <a href="#" id="show-login">Login</a></p>
+            <button id="google-signin-btn">
+                <i class="fab fa-google"></i> Sign in with Google
+            </button>
+            
+
+            <div id="message-container-signup"></div>
+        </div>
+    </div>
+    
+    
+
+    <!-- Main -->
+
+    <main id="main-content">
+        <div id="navbar">
+            <div id="logo">KharchaWise</div>
+            <button id="signout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </div>
+        <div id="main">
+            
+        </div>
+    </main>
+
+    <script src="firebase.js" defer type="module"></script>
+    <script src="script.js" defer type="module"></script>
+</body>
+
+</html>
