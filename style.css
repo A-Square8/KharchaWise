@@ -5,6 +5,7 @@ body {
     padding: 0;
     box-sizing: border-box;
     background-color: rgb(250, 240, 221); 
+    height: 100vh;
 }
 
 
@@ -127,14 +128,16 @@ body {
 
 
 #main-content {
-    display: none;
+    display: block; 
     padding: 20px;
     text-align: center;
     width: 100%;
-    min-height: 100vh;
+    height: 105vh; 
     box-sizing: border-box;
     margin: 0 auto;
-    color: black;
+    color: maroon;
+    margin-top: 50px; 
+    background-color: rgb(252, 237, 209);
 }
 
 #navbar {
@@ -165,18 +168,7 @@ body {
 }
 
 
-#main-content {
-    display: block; 
-    padding: 20px;
-    text-align: center;
-    width: 100%;
-    height: 105vh; 
-    box-sizing: border-box;
-    margin: 0 auto;
-    color: maroon;
-    margin-top: 50px; 
-    background-color: rgb(252, 237, 209);
-}
+
 
 
 #main {
@@ -297,11 +289,13 @@ body {
     background: #fff;
     box-sizing: border-box;
     color: maroon;
+    background-color: transparent;
 }
 
 textarea {
     resize: vertical;
     min-height: 70px;
+    background-color: transparent;
 }
 
 #dateField {
@@ -311,6 +305,7 @@ textarea {
     border-radius: 4px;
     padding: 8px;
     margin-bottom: 10px;
+    background-color: transparent;
 }
 
 #numberInput {
@@ -321,6 +316,7 @@ textarea {
     background: #fff;
     width: 100%;
     margin-bottom: 10px;
+    background-color: transparent;
 }
 
 .calculator {

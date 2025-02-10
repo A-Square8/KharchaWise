@@ -198,6 +198,66 @@ document.getElementById('cancelBtn').addEventListener('click', function () {
     document.getElementById('main').style.display = 'flex';
 });
 
+
+
+function populateExpenseCategories(user) {
+    const categoryDropdown = document.getElementById('expenseCategory');
+
+    const userRef = ref(realTimeDb, `users/${user.uid}/user_shop_category`);
+    onValue(userRef, (snapshot) => {
+
+
+        if (snapshot.exists()) {
+            const categories = snapshot.val();
+            categoryDropdown.innerHTML = "";
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categoryDropdown.appendChild(option);
+            });
+        }
+    });
+}
+function populateAccountOptions(user) {
+    const accountDropdown = document.getElementById('account');
+    const toAccountDropdown = document.getElementById('toAccount');
+
+    const accountRef = ref(realTimeDb, `users/${user.uid}/user_account`);
+    onValue(accountRef, (snapshot) => {
+        if (snapshot.exists()) {
+            const accounts = snapshot.val();
+            accountDropdown.innerHTML = "";
+            toAccountDropdown.innerHTML = "";
+
+
+            Object.entries(accounts).forEach(([account, balance]) => {
+                const formattedText = `${account.charAt(0).toUpperCase() + account.slice(1)} (₹${balance})`;
+
+                const option = document.createElement('option');
+                option.value = account;
+                option.textContent = formattedText;
+
+                const toOption = option.cloneNode(true);
+
+                accountDropdown.appendChild(option);
+                toAccountDropdown.appendChild(toOption);
+            });
+        }
+    });
+}
+
+
+
+
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        populateExpenseCategories(user);
+        populateAccountOptions(user);
+    }
+});
+
+
 // Calculator logic
 const numberInput = document.getElementById('numberInput');
 const calcButtons = document.querySelectorAll('.calc-btn');
@@ -314,5 +374,4 @@ document.getElementById('transferBtn').onclick = () => selectOption('Transfer');
 
 // Default view on load
 selectOption('Expense');
-
 
