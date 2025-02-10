@@ -97,14 +97,18 @@ function saveUserDataToDb(user) {
         if (!snapshot.exists()) {
             set(userRef, {
                 email: user.email,
-                user_account: ["cash", "bank"], // Default account types
+                user_account: {
+                    cash: 0,  
+                    bank: 0   
+                }, // Default account types
                 user_shop_category: [
                     "Rent", "EMI", "Groceries", "Utility bills", "Education expenses",
                     "Transportation", "Health insurance", "Medical expenses", "Household maintenance",
                     "Internet bills", "Mobile bills", "Entertainment", "Recreation", "Dining out",
                     "Savings", "Investments", "Loan repayments", "Clothing", "Festivals", "Celebrations",
                     "Gifts", "Donations", "Travel", "Vacations", "Childcare expenses", "Emergency fund contributions"
-                ] // Default categories
+                ], // Default categories
+
             })
             .then(() => {
                 console.log("User data saved successfully.");
@@ -176,3 +180,139 @@ signOutButton.addEventListener("click", () => {
             console.error("Error signing out: ", error);
         });
 });
+
+
+document.documentElement.style.setProperty('--box-count', document.querySelectorAll('.content-box').length);
+
+
+
+
+// add
+document.getElementById('addNewBtn').addEventListener('click', function () {
+    document.getElementById('main').style.display = 'none';
+    document.getElementById('transactionForm').style.display = 'block';
+});
+
+document.getElementById('cancelBtn').addEventListener('click', function () {
+    document.getElementById('transactionForm').style.display = 'none';
+    document.getElementById('main').style.display = 'flex';
+});
+
+// Calculator logic
+const numberInput = document.getElementById('numberInput');
+const calcButtons = document.querySelectorAll('.calc-btn');
+let firstValue = '';
+let operator = '';
+
+calcButtons.forEach(button => {
+    button.addEventListener('click', function () {
+        const value = this.getAttribute('data-value');
+        const operation = this.getAttribute('data-operation');
+
+        if (value) {
+            numberInput.value += value;
+        } else if (operation) {
+            if (numberInput.value !== '') {
+                if (firstValue === '') {
+                    firstValue = numberInput.value;
+                } else if (operator) {
+                    firstValue = operate(firstValue, numberInput.value, operator);
+                }
+                operator = operation;
+                numberInput.value = '';
+            }
+        } else if (this.id === 'equals') {
+            if (firstValue !== '' && numberInput.value !== '' && operator) {
+                numberInput.value = operate(firstValue, numberInput.value, operator);
+                firstValue = '';
+                operator = '';
+            }
+        } else if (this.id === 'clear') {
+            numberInput.value = '';
+            firstValue = '';
+            operator = '';
+        }
+    });
+});
+
+function operate(a, b, operator) {
+    a = parseFloat(a);
+    b = parseFloat(b);
+    switch (operator) {
+        case '+': return a + b;
+        case '-': return a - b;
+        case '*': return a * b;
+        case '/': return b !== 0 ? a / b : 'Error';
+        default: return b;
+    }
+}
+// Handle submission
+document.getElementById('submitBtn').addEventListener('click', () => {
+    const transactionType = document.getElementById('transactionType').value;
+    const amount = numberInput.value;
+    const account = document.getElementById('account').value;
+
+    if (amount === '') {
+        alert('Please enter an amount.');
+        return;
+    }
+
+    console.log({
+        transactionType,
+        amount,
+        account
+    });
+
+    alert('Transaction Submitted!');
+});
+
+// Date field setup
+function getCurrentDateInIST() {
+    const now = new Date();
+
+    const utcOffset = now.getTimezoneOffset(); 
+    const istOffset = 330; 
+    
+    now.setMinutes(now.getMinutes() + utcOffset + istOffset);
+    
+    return now.toISOString().split('T')[0];
+}
+
+document.getElementById('dateField').value = getCurrentDateInIST();
+
+// Transaction type logic
+let selectedOption = 'Expense';
+document.getElementById('expenseBtn').classList.add('active');
+
+// Define the selectOption function in the MainContent scope
+function selectOption(option) {
+    selectedOption = option;
+
+    document.getElementById('expenseBtn').classList.remove('active');
+    document.getElementById('incomeBtn').classList.remove('active');
+    document.getElementById('transferBtn').classList.remove('active');
+
+    if (option === 'Expense') {
+        document.getElementById('expenseBtn').classList.add('active');
+        document.getElementById('expenseCategoryGroup').style.display = 'flex';
+        document.querySelector('#toAccountGroup').style.display = 'none';
+    } else if (option === 'Income') {
+        document.getElementById('incomeBtn').classList.add('active');
+        document.getElementById('expenseCategoryGroup').style.display = 'none';
+        document.querySelector('#toAccountGroup').style.display = 'none';
+    } else if (option === 'Transfer') {
+        document.getElementById('transferBtn').classList.add('active');
+        document.getElementById('expenseCategoryGroup').style.display = 'none';
+        document.querySelector('#toAccountGroup').style.display = 'flex';
+    }
+}
+
+// Add click listeners to the transaction buttons
+document.getElementById('expenseBtn').onclick = () => selectOption('Expense');
+document.getElementById('incomeBtn').onclick = () => selectOption('Income');
+document.getElementById('transferBtn').onclick = () => selectOption('Transfer');
+
+// Default view on load
+selectOption('Expense');
+
+

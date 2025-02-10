@@ -173,7 +173,7 @@ body {
     height: 105vh; 
     box-sizing: border-box;
     margin: 0 auto;
-    color: black;
+    color: maroon;
     margin-top: 50px; 
     background-color: rgb(252, 237, 209);
 }
@@ -185,12 +185,41 @@ body {
     padding: 20px;
     box-sizing: border-box;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    flex-direction: column;
+    gap: 10px; 
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1), 0 0 30px rgba(0, 0, 0, 0.05);
     border-radius: 14px;
     background-color: rgb(250, 240, 221);
 }
+
+.content-box{
+    /* height: calc((100% - 20px) / var(--box-count)); to dynamically allocate equal heights */
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    margin-left: 10%;
+    margin-right: 10%;
+}
+
+.content-box:nth-child(1) {
+    height: 10%;
+
+}
+
+.content-box:nth-child(2) {
+    height: 10%;
+    align-items: center;
+}
+
+.content-box:nth-child(3) {
+    height: 10%;
+}
+
+.content-box:nth-child(4) {
+    height: 70%;
+}
+
+
 
 
 @media (max-width: 1000px) {
@@ -206,5 +235,172 @@ body {
         width: 60%; 
         margin: 0 auto; 
         height: 100vh; 
+    }
+}
+
+
+
+.on-btn
+{
+    background-color: maroon;
+    color: rgb(250, 240, 221);
+    border: none;
+    padding: 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    min-width: 100px;
+    min-height: 30px;
+    font-weight: bolder;
+    
+}
+
+/* Add Form Container */
+#transactionForm {
+    display: none;
+    width: 90%;
+    max-width: 600px;
+    margin: 1vh auto;
+    padding: 18px;
+    box-sizing: border-box;
+    flex-direction: column;
+    gap: 10px;
+    border-radius: 12px;
+    background-color: rgb(250, 240, 221);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1), 0 0 30px rgba(0, 0, 0, 0.05);
+}
+
+.input-group-add {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 6px;
+    width: 100%;
+    margin-bottom: 6px;
+}
+
+.input-group-add label {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.input-group-add select,
+.input-group-add input,
+.input-group-add textarea {
+    width: 100%;
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid maroon;
+    border-radius: 5px;
+    background: #fff;
+    box-sizing: border-box;
+    color: maroon;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 70px;
+}
+
+#dateField {
+    width: 100%;
+    font-size: 14px;
+    border: 1px solid maroon;
+    border-radius: 4px;
+    padding: 8px;
+    margin-bottom: 10px;
+}
+
+#numberInput {
+    text-align: right;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 8px;
+    background: #fff;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.calculator {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.calc-btn {
+    padding: 12px;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    background-color: maroon;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.calc-btn:hover {
+    background-color: rgb(159, 3, 3);
+}
+
+.submit-cancel-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 6px;
+}
+
+#submitBtn, #cancelBtn {
+    width: 48%;
+    padding: 8px;
+    font-size: 14px;
+    background-color: maroon;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#submitBtn:hover, #cancelBtn:hover {
+    background-color: rgb(159, 3, 3);
+}
+
+@media (max-width: 768px) {
+    #transactionForm {
+        width: 95%;
+        max-width: 450px;
+        margin: 5vh auto;
+    }
+
+    .calc-btn {
+        font-size: 12px;
+        padding: 8px;
+    }
+
+    .on-btn {
+        font-size: 12px;
+        padding: 6px;
+    }
+
+    .submit-cancel-container {
+        flex-direction: row;
+    }
+
+    #submitBtn, #cancelBtn {
+        width: 48%;
+    }
+}
+
+@media (min-width: 1024px) {
+    #transactionForm {
+        width: 50%;
+        max-width: 550px;
+        padding: 25px;
     }
 }
