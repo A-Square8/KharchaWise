@@ -132,7 +132,7 @@ body {
     padding: 20px;
     text-align: center;
     width: 100%;
-    height: 105vh; 
+    height: 100vh; 
     box-sizing: border-box;
     margin: 0 auto;
     color: maroon;
@@ -173,7 +173,7 @@ body {
 
 #main {
     width: 100%; 
-    height: 100%; 
+    height: 70vh; 
     padding: 20px;
     box-sizing: border-box;
     display: flex;
@@ -217,7 +217,7 @@ body {
 @media (max-width: 1000px) {
     #main {
         width: 100%; 
-        height: 100%; 
+        height: 95%; 
         padding: 10px;
     }
 }
@@ -226,7 +226,7 @@ body {
     #main {
         width: 60%; 
         margin: 0 auto; 
-        height: 100vh; 
+        height: 95%; 
     }
 }
 
@@ -250,13 +250,14 @@ body {
 /* Add Form Container */
 #transactionForm {
     display: none;
-    width: 90%;
+    width: 95%;
+    height: 90%;
     max-width: 600px;
     margin: 1vh auto;
     padding: 18px;
     box-sizing: border-box;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
     border-radius: 12px;
     background-color: rgb(250, 240, 221);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1), 0 0 30px rgba(0, 0, 0, 0.05);
@@ -266,7 +267,7 @@ body {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    gap: 6px;
+    gap: 3px;
     width: 100%;
     margin-bottom: 6px;
 }
@@ -328,8 +329,8 @@ textarea {
 }
 
 .calc-btn {
-    padding: 12px;
-    font-size: 14px;
+    padding: 10px;
+    font-size: 12px;
     font-weight: bold;
     text-align: center;
     background-color: maroon;
