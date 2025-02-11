@@ -194,12 +194,12 @@ body {
 }
 
 .content-box:nth-child(1) {
-    height: 10%;
+    height: 15%;
 
 }
 
 .content-box:nth-child(2) {
-    height: 10%;
+    height: 5%;
     align-items: center;
 }
 

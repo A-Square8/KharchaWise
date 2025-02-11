@@ -1,6 +1,6 @@
 import { auth, provider, realTimeDb } from "./firebase.js";
 import { signInWithPopup, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-import { ref, set, onValue } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+import { ref, set, get,onValue,update } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
 
 // DOM Elements
 const authContainer = document.getElementById("auth-container");
@@ -19,7 +19,7 @@ const signupContainer = document.getElementById("signup-container");
 const messageContainer = document.getElementById("message-container");
 const messageContainerSignup = document.getElementById("message-container-signup");
 const signOutButton = document.getElementById("signout-btn");
-
+const addTBtn = document.getElementById("addsubmitBtn");
 // Handle Google Sign-In
 googleSignInBtn.addEventListener("click", () => {
     signInWithPopup(auth, provider)
@@ -193,7 +193,7 @@ document.getElementById('addNewBtn').addEventListener('click', function () {
     document.getElementById('transactionForm').style.display = 'block';
 });
 
-document.getElementById('cancelBtn').addEventListener('click', function () {
+document.getElementById('addcancelBtn').addEventListener('click', function () {
     document.getElementById('transactionForm').style.display = 'none';
     document.getElementById('main').style.display = 'flex';
 });
@@ -306,25 +306,7 @@ function operate(a, b, operator) {
         default: return b;
     }
 }
-// Handle submission
-document.getElementById('submitBtn').addEventListener('click', () => {
-    const transactionType = document.getElementById('transactionType').value;
-    const amount = numberInput.value;
-    const account = document.getElementById('account').value;
 
-    if (amount === '') {
-        alert('Please enter an amount.');
-        return;
-    }
-
-    console.log({
-        transactionType,
-        amount,
-        account
-    });
-
-    alert('Transaction Submitted!');
-});
 
 // Date field setup
 function getCurrentDateInIST() {
@@ -367,11 +349,99 @@ function selectOption(option) {
     }
 }
 
-// Add click listeners to the transaction buttons
+
 document.getElementById('expenseBtn').onclick = () => selectOption('Expense');
 document.getElementById('incomeBtn').onclick = () => selectOption('Income');
 document.getElementById('transferBtn').onclick = () => selectOption('Transfer');
 
-// Default view on load
+
 selectOption('Expense');
 
+//log data into user_transaction
+
+addTBtn.addEventListener("click", async () => {
+    const user = auth.currentUser;
+    if (!user) {
+        alert("Please sign in first");
+        return;
+    }
+
+    const amount = parseFloat(document.getElementById('numberInput').value);
+    const description = document.getElementById('description').value;
+    const date = document.getElementById('dateField').value;
+    const fromAccount = document.getElementById('account').value;
+    const expenseCategory = document.getElementById('expenseCategory').value;
+    const toAccount = document.getElementById('toAccount').value;
+
+    if (!amount || !date || !fromAccount) {
+        alert("Please fill in all required fields");
+        return;
+    }
+
+    try {
+        const userId = user.uid;
+        const transactionRef = ref(realTimeDb, `user_transaction/${userId}`);
+        const snapshot = await get(transactionRef);
+        const nextTransactionId = snapshot.exists() ? Object.keys(snapshot.val()).length + 1 : 1;
+
+        let transactionData = {
+            transaction_id: nextTransactionId,
+            transaction_type: selectedOption,
+            amount: amount,
+            from_account: fromAccount,
+            date: date,
+            description: description || ''
+        };
+
+        if (selectedOption === 'Expense') {
+            transactionData.expense_category = expenseCategory;
+        } else if (selectedOption === 'Transfer') {
+            transactionData.to_account = toAccount;
+        }
+
+        await set(ref(realTimeDb, `user_transaction/${userId}/${nextTransactionId}`), transactionData);
+
+        //Update balances
+        await updateAccountBalance(userId, fromAccount, amount, selectedOption);
+
+        if (selectedOption === "Transfer") {
+            await updateAccountBalance(userId, toAccount, amount, "Income");
+        }
+
+        clearForm();
+        console.log("Added transaction");
+        alert("Transaction added successfully!");
+
+    } catch (error) {
+        console.error("Error adding transaction:", error);
+        alert("Error adding transaction. Please try again.");
+    }
+});
+
+async function updateAccountBalance(userId, account, amount, transactionType) {
+    const accountRef = ref(realTimeDb, `users/${userId}/user_account`);
+    const snapshot = await get(accountRef);
+    let currentBalances = snapshot.exists() ? snapshot.val() : {};
+
+
+    let currentBalance = currentBalances[account] || 0;
+
+    if (transactionType === "Expense" || transactionType === "Transfer") {
+        currentBalance -= amount;
+    } else if (transactionType === "Income") {
+        currentBalance += amount;
+    }
+
+
+    await update(accountRef, { [account]: currentBalance });
+
+    console.log(`Updated balance for ${account}: ${currentBalance}`);
+}
+
+
+function clearForm() {
+    document.getElementById('numberInput').value = '';
+    document.getElementById('description').value = '';
+    document.getElementById('transactionForm').style.display = 'none';
+    document.getElementById('main').style.display = 'flex';
+}
