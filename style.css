@@ -1,10 +1,9 @@
-
 body {
     font-family: 'Roboto', sans-serif;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    background-color: rgb(250, 240, 221); 
+    background-color: rgb(250, 240, 221);
     height: 100vh;
 }
 
@@ -18,28 +17,30 @@ body {
     padding: 20px;
     text-align: center;
     flex-grow: 1;
-    
+
 }
 
 
-#email-login-container, #signup-container {
+#email-login-container,
+#signup-container {
     display: flex;
     flex-direction: column;
     gap: 5px;
     width: 100%;
-    max-width: 400px; 
-    background-color:  maroon;
+    max-width: 400px;
+    background-color: maroon;
     color: rgb(250, 240, 221);
     padding: 30px;
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     box-sizing: border-box;
     transition: all 0.3s ease;
-    
+
 }
 
 
-#email-login-container input, #signup-container input {
+#email-login-container input,
+#signup-container input {
     padding: 15px;
     margin-bottom: 10px;
     border-radius: 5px;
@@ -50,7 +51,8 @@ body {
 }
 
 
-#email-login-container button, #signup-container button {
+#email-login-container button,
+#signup-container button {
     background-color: rgb(250, 240, 221);
     color: maroon;
     border: none;
@@ -65,7 +67,8 @@ body {
 
 
 /* Link between login and signup form */
-#email-login-container p, #signup-container p {
+#email-login-container p,
+#signup-container p {
     margin-top: 10px;
     font-size: 14px;
 }
@@ -73,7 +76,8 @@ body {
 
 
 
-#show-signup, #show-login {
+#show-signup,
+#show-login {
     color: #4285F4;
     cursor: pointer;
     text-decoration: underline;
@@ -85,7 +89,8 @@ body {
 }
 
 
-#message-container, #message-container-signup {
+#message-container,
+#message-container-signup {
     margin-top: 10px;
     font-size: 16px;
     text-align: center;
@@ -104,14 +109,16 @@ body {
 
 
 #message-container-signup.error {
-    color:  rgb(250, 240, 221);
+    color: rgb(250, 240, 221);
 }
 
 
 
 
 @media (max-width: 600px) {
-    #email-login-container, #signup-container {
+
+    #email-login-container,
+    #signup-container {
         width: 100%;
         padding: 20px;
     }
@@ -121,22 +128,24 @@ body {
     }
 
 
-    #google-signin-btn, #email-login-container button, #signup-container button {
+    #google-signin-btn,
+    #email-login-container button,
+    #signup-container button {
         padding: 14px;
     }
 }
 
 
 #main-content {
-    display: block; 
+    display: block;
     padding: 20px;
     text-align: center;
     width: 100%;
-    height: 100vh; 
+    height: 100vh;
     box-sizing: border-box;
     margin: 0 auto;
     color: maroon;
-    margin-top: 50px; 
+    margin-top: 50px;
     background-color: rgb(252, 237, 209);
 }
 
@@ -172,19 +181,19 @@ body {
 
 
 #main {
-    width: 100%; 
-    height: 70vh; 
+    width: 100%;
+    height: 70vh;
     padding: 20px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    gap: 10px; 
+    gap: 10px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1), 0 0 30px rgba(0, 0, 0, 0.05);
     border-radius: 14px;
     background-color: rgb(250, 240, 221);
 }
 
-.content-box{
+.content-box {
     /* height: calc((100% - 20px) / var(--box-count)); to dynamically allocate equal heights */
     display: flex;
     flex-direction: row;
@@ -194,13 +203,13 @@ body {
 }
 
 .content-box:nth-child(1) {
-    height: 20%;
+    height: 15%;
     justify-content: space-between;
 
 }
 
 .content-box:nth-child(2) {
-    height: 5%;
+    height: 10%;
     align-items: center;
 }
 
@@ -209,7 +218,7 @@ body {
 }
 
 .content-box:nth-child(4) {
-    height: 70%;
+    height: 65%;
 }
 
 
@@ -217,17 +226,17 @@ body {
 
 @media (max-width: 1000px) {
     #main {
-        width: 100%; 
-        height: 95%; 
+        width: 100%;
+        height: 95%;
         padding: 10px;
     }
 }
 
 @media (min-width: 1001px) {
     #main {
-        width: 60%; 
-        margin: 0 auto; 
-        height: 95%; 
+        width: 60%;
+        margin: 0 auto;
+        height: 95%;
     }
 }
 
@@ -250,10 +259,10 @@ body {
 }
 
 .account-list {
-    max-height: calc(100% - 40px);
+    width: 40%;
     overflow-y: auto;
-    scrollbar-width: none; 
-    -ms-overflow-style: none; 
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 
 .account-list::-webkit-scrollbar {
@@ -276,8 +285,7 @@ body {
 
 
 
-.on-btn
-{
+.on-btn {
     background-color: maroon;
     color: rgb(250, 240, 221);
     border: none;
@@ -288,7 +296,7 @@ body {
     min-width: 100px;
     min-height: 30px;
     font-weight: bolder;
-    
+
 }
 
 /* Add Form Container */
@@ -396,7 +404,8 @@ textarea {
     margin-top: 6px;
 }
 
-#submitBtn, #cancelBtn {
+#submitBtn,
+#cancelBtn {
     width: 48%;
     padding: 8px;
     font-size: 14px;
@@ -408,7 +417,8 @@ textarea {
     transition: 0.2s;
 }
 
-#submitBtn:hover, #cancelBtn:hover {
+#submitBtn:hover,
+#cancelBtn:hover {
     background-color: rgb(159, 3, 3);
 }
 
@@ -433,7 +443,8 @@ textarea {
         flex-direction: row;
     }
 
-    #submitBtn, #cancelBtn {
+    #submitBtn,
+    #cancelBtn {
         width: 48%;
     }
 }
