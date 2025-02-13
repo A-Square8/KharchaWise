@@ -254,6 +254,7 @@ onAuthStateChanged(auth, (user) => {
     if (user) {
         populateExpenseCategories(user);
         populateAccountOptions(user);
+        updateBalanceDisplay(user);
     }
 });
 
@@ -445,3 +446,46 @@ function clearForm() {
     document.getElementById('transactionForm').style.display = 'none';
     document.getElementById('main').style.display = 'flex';
 }
+
+
+//fetch balance
+function updateBalanceDisplay(user) {
+    const totalBalanceElement = document.querySelector('.total-balance');
+    const accountListElement = document.querySelector('.account-list');
+    
+    const userAccountRef = ref(realTimeDb, `users/${user.uid}/user_account`);
+    
+    onValue(userAccountRef, (snapshot) => {
+        if (snapshot.exists()) {
+            const accounts = snapshot.val();
+            
+            // Calculate total balance
+            const totalBalance = Object.values(accounts).reduce((sum, balance) => sum + balance, 0);
+            totalBalanceElement.textContent = `Total Balance: ₹${totalBalance}`;
+            
+            // Clear existing account list
+            accountListElement.innerHTML = '';
+            
+            // Add individual account balances
+            Object.entries(accounts).forEach(([accountName, balance]) => {
+                const accountItem = document.createElement('div');
+                accountItem.className = 'account-item';
+                
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'account-name';
+                nameSpan.textContent = accountName;
+                
+                const balanceSpan = document.createElement('span');
+                balanceSpan.textContent = `₹${balance}`;
+                
+                accountItem.appendChild(nameSpan);
+                accountItem.appendChild(balanceSpan);
+                accountListElement.appendChild(accountItem);
+            });
+        } else {
+            totalBalanceElement.textContent = 'Total Balance: ₹0';
+            accountListElement.innerHTML = '<div class="account-item">No accounts found</div>';
+        }
+    });
+}
+
