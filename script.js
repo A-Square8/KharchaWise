@@ -489,3 +489,27 @@ function updateBalanceDisplay(user) {
     });
 }
 
+
+
+const balanceContainer = document.querySelector('.balance-container');
+const accountList = document.querySelector('.account-list');
+const navButtons = document.querySelectorAll('.nav-btn');
+
+
+navButtons.forEach(button => {
+    button.addEventListener('click', () => {
+
+        navButtons.forEach(btn => btn.classList.remove('active'));
+
+        button.classList.add('active');
+
+
+        if (button.dataset.frame === 'accounts') {
+            balanceContainer.style.transform = 'translateX(-100%)';
+            accountList.style.transform = 'translateX(0)';
+        } else {
+            balanceContainer.style.transform = 'translateX(0)';
+            accountList.style.transform = 'translateX(100%)';
+        }
+    });
+});

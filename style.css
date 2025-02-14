@@ -141,7 +141,7 @@ body {
     padding: 20px;
     text-align: center;
     width: 100%;
-    height: 100vh;
+    height: 150vh;
     box-sizing: border-box;
     margin: 0 auto;
     color: maroon;
@@ -205,6 +205,8 @@ body {
 .content-box:nth-child(1) {
     height: 15%;
     justify-content: space-between;
+    position: relative;
+    overflow: hidden;
 
 }
 
@@ -243,44 +245,85 @@ body {
 
 
 /* balance window */
-.balance-container {
-    width: 40%;
-    padding: 5px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+.balance-container, .account-list {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.5s ease;
+    padding: 1.5rem;
+    box-sizing: border-box;
 }
 
-.total-balance {
-    font-size: 1.2em;
-    font-weight: bold;
-    padding: 5px;
-    color: maroon;
+
+.balance-container {
+    transform: translateX(0);
 }
 
 .account-list {
-    width: 40%;
+    transform: translateX(100%);
     overflow-y: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
 }
 
-.account-list::-webkit-scrollbar {
-    display: none;
+
+.nav-buttons {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    gap: 10px;
+}
+
+.nav-btn {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: rgba(128, 0, 0, 0.3);
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.nav-btn.active {
+    background-color: maroon;
+}
+
+
+.total-balance {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: maroon;
+    text-align: center;
 }
 
 .account-item {
     display: flex;
     justify-content: space-between;
-    padding: 5px;
-    border-bottom: 1px solid rgba(128, 0, 0, 0.2);
-    color: maroon;
+    padding: 0.8rem;
+    border-bottom: 1px solid rgba(128, 0, 0, 0.1);
 }
 
 .account-name {
+    color: maroon;
     text-transform: capitalize;
 }
 
+
+.account-list::-webkit-scrollbar {
+    width: 5px;
+}
+
+.account-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.account-list::-webkit-scrollbar-thumb {
+    background: maroon;
+    border-radius: 5px;
+}
 
 
 
@@ -303,7 +346,7 @@ body {
 #transactionForm {
     display: none;
     width: 95%;
-    height: 90%;
+    height: 70%;
     max-width: 600px;
     margin: 1vh auto;
     padding: 18px;
@@ -456,3 +499,10 @@ textarea {
         padding: 25px;
     }
 }
+
+
+
+
+
+
+
