@@ -80,5 +80,5 @@ Feel free to fork the repository and submit pull requests. Contributions are wel
 This project is licensed under the **MIT License**.
 
 ---
-🚀 Built with ❤️ by [Your Name]
+🚀 Built with ❤️ by [A-Square8]
 
