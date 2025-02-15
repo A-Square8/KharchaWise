@@ -1,6 +1,6 @@
 import { auth, provider, realTimeDb } from "./firebase.js";
 import { signInWithPopup, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-import { ref, set, get,onValue,update } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+import { ref, set, get, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
 
 // DOM Elements
 const authContainer = document.getElementById("auth-container");
@@ -149,6 +149,8 @@ onAuthStateChanged(auth, (user) => {
             console.log("Real-time user data:", userData);
             // Update UI or perform actions based on real-time changes
         });
+
+        initializeTransactionHistory();
 
         console.log(`User signed in: ${user.displayName || user.email}`);
     } else {
@@ -382,11 +384,12 @@ addTBtn.addEventListener("click", async () => {
     try {
         const userId = user.uid;
         const transactionRef = ref(realTimeDb, `user_transaction/${userId}`);
-        const snapshot = await get(transactionRef);
-        const nextTransactionId = snapshot.exists() ? Object.keys(snapshot.val()).length + 1 : 1;
-
+        
+        // Generate a unique transaction ID using timestamp
+        const transactionId = Date.now().toString();
+        
         let transactionData = {
-            transaction_id: nextTransactionId,
+            transaction_id: transactionId,
             transaction_type: selectedOption,
             amount: amount,
             from_account: fromAccount,
@@ -400,9 +403,10 @@ addTBtn.addEventListener("click", async () => {
             transactionData.to_account = toAccount;
         }
 
-        await set(ref(realTimeDb, `user_transaction/${userId}/${nextTransactionId}`), transactionData);
+        // Store the transaction using the unique ID
+        await set(ref(realTimeDb, `user_transaction/${userId}/${transactionId}`), transactionData);
 
-        //Update balances
+        // Update balances
         await updateAccountBalance(userId, fromAccount, amount, selectedOption);
 
         if (selectedOption === "Transfer") {
@@ -410,7 +414,7 @@ addTBtn.addEventListener("click", async () => {
         }
 
         clearForm();
-        console.log("Added transaction");
+        console.log("Added transaction with ID:", transactionId);
         alert("Transaction added successfully!");
 
     } catch (error) {
@@ -418,7 +422,6 @@ addTBtn.addEventListener("click", async () => {
         alert("Error adding transaction. Please try again.");
     }
 });
-
 async function updateAccountBalance(userId, account, amount, transactionType) {
     const accountRef = ref(realTimeDb, `users/${userId}/user_account`);
     const snapshot = await get(accountRef);
@@ -513,3 +516,253 @@ navButtons.forEach(button => {
         }
     });
 });
+
+
+
+//transaction history
+
+let currentPage = 1;
+const transactionsPerPage = 5; 
+
+function initializeTransactionHistory() {
+    loadTransactions();
+    
+    document.getElementById('prevPage').addEventListener('click', () => changePage(-1));
+    document.getElementById('nextPage').addEventListener('click', () => changePage(1));
+}
+
+function loadTransactions() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const transactionsRef = ref(realTimeDb, `user_transaction/${user.uid}`);
+    onValue(transactionsRef, (snapshot) => {
+        if (snapshot.exists()) {
+            const transactions = [];
+            snapshot.forEach((childSnapshot) => {
+                transactions.push({
+                    id: childSnapshot.key,
+                    ...childSnapshot.val()
+                });
+            });
+
+            transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            displayTransactions(transactions);
+            updatePaginationControls(transactions.length);
+        } else {
+            const transactionsList = document.getElementById('transactionsList');
+            transactionsList.innerHTML = '<div class="no-transactions">No transactions found</div>';
+            updatePaginationControls(0);
+        }
+    });
+}
+
+function displayTransactions(transactions) {
+    const transactionsList = document.getElementById('transactionsList');
+    transactionsList.innerHTML = '';
+    
+    const startIndex = (currentPage - 1) * transactionsPerPage;
+    const endIndex = startIndex + transactionsPerPage;
+    const currentTransactions = transactions.slice(startIndex, endIndex);
+    
+    // Create table view for larger screens
+    const tableView = document.createElement('div');
+    tableView.className = 'transaction-table';
+    tableView.innerHTML = `
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>From</th>
+                    <th>To/Category</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${currentTransactions.map(transaction => `
+                    <tr>
+                        <td>${formatDate(transaction.date)}</td>
+                        <td>
+                            <span class="transaction-type type-${transaction.transaction_type.toLowerCase()}">
+                                ${transaction.transaction_type}
+                            </span>
+                        </td>
+                        <td class="amount ${transaction.transaction_type.toLowerCase()}">
+                            ${transaction.transaction_type === 'Income' ? '+' : 
+                              transaction.transaction_type === 'Expense' ? '-' : ''}
+                            ₹${transaction.amount}
+                        </td>
+                        <td>${transaction.from_account}</td>
+                        <td>${transaction.to_account || transaction.expense_category || '-'}</td>
+                        <td>${transaction.description || '-'}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="delete-btn" onclick="deleteTransaction('${transaction.id}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+
+    // Create card view for mobile screens
+    const cardView = document.createElement('div');
+    cardView.className = 'transaction-cards';
+    
+    currentTransactions.forEach(transaction => {
+        const card = document.createElement('div');
+        card.className = 'transaction-item';
+        
+        const amountPrefix = transaction.transaction_type === 'Income' ? '+' : 
+                           transaction.transaction_type === 'Expense' ? '-' : '';
+        
+        card.innerHTML = `
+            <div class="transaction-header">
+                <div class="transaction-main-info">
+                    <span class="transaction-type type-${transaction.transaction_type.toLowerCase()}">${transaction.transaction_type}</span>
+                    <span class="transaction-amount ${transaction.transaction_type.toLowerCase()}">
+                        ${amountPrefix}₹${transaction.amount}
+                    </span>
+                </div>
+                <button class="toggle-details-btn">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
+            <div class="transaction-details">
+                <div class="detail-row">
+                    <span class="detail-label">Date:</span>
+                    <span class="detail-value">${formatDate(transaction.date)}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">From Account:</span>
+                    <span class="detail-value">${transaction.from_account}</span>
+                </div>
+                ${transaction.to_account ? `
+                <div class="detail-row">
+                    <span class="detail-label">To Account:</span>
+                    <span class="detail-value">${transaction.to_account}</span>
+                </div>
+                ` : ''}
+                ${transaction.expense_category ? `
+                <div class="detail-row">
+                    <span class="detail-label">Category:</span>
+                    <span class="detail-value">${transaction.expense_category}</span>
+                </div>
+                ` : ''}
+                <div class="detail-row">
+                    <span class="detail-label">Description:</span>
+                    <span class="detail-value">${transaction.description || '-'}</span>
+                </div>
+                <div class="action-buttons">
+                    <button class="delete-btn" onclick="deleteTransaction('${transaction.id}')">Delete</button>
+                </div>
+            </div>
+        `;
+        
+        const toggleBtn = card.querySelector('.toggle-details-btn');
+        const details = card.querySelector('.transaction-details');
+        toggleBtn.addEventListener('click', () => {
+            details.classList.toggle('show');
+            toggleBtn.querySelector('i').classList.toggle('fa-chevron-up');
+            toggleBtn.querySelector('i').classList.toggle('fa-chevron-down');
+        });
+        
+        cardView.appendChild(card);
+    });
+
+    transactionsList.appendChild(tableView);
+    transactionsList.appendChild(cardView);
+}
+
+function updatePaginationControls(totalTransactions) {
+    const totalPages = Math.ceil(totalTransactions / transactionsPerPage);
+    const prevButton = document.getElementById('prevPage');
+    const nextButton = document.getElementById('nextPage');
+    const pageIndicator = document.getElementById('pageIndicator');
+    
+    prevButton.disabled = currentPage === 1;
+    nextButton.disabled = currentPage === totalPages || totalPages === 0;
+    pageIndicator.textContent = totalPages === 0 ? 
+        'No transactions' : 
+        `Page ${currentPage} of ${totalPages}`;
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-IN', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+function changePage(step) {
+    currentPage += step;
+    loadTransactions(); 
+}
+
+// Make deleteTransaction function available globally
+window.deleteTransaction = async function(transactionId) {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    // Get the transaction details first to reverse the balance changes
+    const transactionRef = ref(realTimeDb, `user_transaction/${user.uid}/${transactionId}`);
+    
+    try {
+        const snapshot = await get(transactionRef);
+        if (snapshot.exists()) {
+            const transaction = snapshot.val();
+            
+            if (confirm("Are you sure you want to delete this transaction?")) {
+                // Reverse the balance changes
+                if (transaction.transaction_type === "Expense") {
+                    await updateAccountBalance(
+                        user.uid,
+                        transaction.from_account,
+                        transaction.amount,
+                        "Income" // Reverse of Expense
+                    );
+                } else if (transaction.transaction_type === "Income") {
+                    await updateAccountBalance(
+                        user.uid,
+                        transaction.from_account,
+                        transaction.amount,
+                        "Expense" // Reverse of Income
+                    );
+                } else if (transaction.transaction_type === "Transfer") {
+                    // Reverse both the from and to account changes
+                    await updateAccountBalance(
+                        user.uid,
+                        transaction.from_account,
+                        transaction.amount,
+                        "Income" // Add back to source account
+                    );
+                    await updateAccountBalance(
+                        user.uid,
+                        transaction.to_account,
+                        transaction.amount,
+                        "Expense" // Remove from destination account
+                    );
+                }
+
+                // Delete the transaction
+                await remove(transactionRef);
+                alert("Transaction deleted successfully!");
+                loadTransactions();
+            }
+        } else {
+            alert("Transaction not found!");
+        }
+    } catch (error) {
+        console.error("Error deleting transaction:", error);
+        alert("Failed to delete transaction. Please try again.");
+    }
+};
