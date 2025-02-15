@@ -630,6 +630,7 @@ function displayTransactions(transactions) {
                     <span class="transaction-amount ${transaction.transaction_type.toLowerCase()}">
                         ${amountPrefix}₹${transaction.amount}
                     </span>
+                    <span class="transaction-date-main">${formatDateShort(transaction.date)}</span>
                 </div>
                 <button class="toggle-details-btn">
                     <i class="fas fa-chevron-down"></i>
@@ -679,6 +680,11 @@ function displayTransactions(transactions) {
 
     transactionsList.appendChild(tableView);
     transactionsList.appendChild(cardView);
+}
+
+function formatDateShort(dateStr) {
+    const date = new Date(dateStr);
+    return `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getFullYear()).slice(-2)}`;
 }
 
 function updatePaginationControls(totalTransactions) {

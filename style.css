@@ -609,6 +609,14 @@ textarea {
     color:maroon;
 }
 
+.transaction-date-main
+{
+    font-size: 0.65rem;  
+    color: maroon;         
+    margin-left: 8px;    
+    white-space: nowrap; 
+}
+
 
 .no-transactions {
     text-align: center;
