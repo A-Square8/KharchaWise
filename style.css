@@ -217,12 +217,15 @@ body {
 
 .content-box:nth-child(3) {
     height: 15%;
+    align-items: last baseline;
+    justify-content: center;
+    
 }
 
 .content-box:nth-child(4) {
     height: 60%;
-    align-items: last baseline;
     justify-content: center;
+    
 }
 
 
@@ -615,6 +618,7 @@ textarea {
     color: maroon;         
     margin-left: 8px;    
     white-space: nowrap; 
+    
 }
 
 
@@ -703,4 +707,30 @@ textarea {
 #pageIndicator {
     font-weight: bold;
     color: maroon;
+}
+
+
+.transaction-table-container {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    width: 100%;
+    padding: 15px;
+    background-color: rgb(250, 240, 221);
+    border-radius: 8px;
+    overflow-x: auto;
+}
+
+.transaction-list {
+    flex-grow: 1; 
+    width: 100%;
+}
+
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: auto; 
+    padding: 10px 0;
 }

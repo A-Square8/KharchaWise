@@ -522,7 +522,7 @@ navButtons.forEach(button => {
 //transaction history
 
 let currentPage = 1;
-const transactionsPerPage = 5; 
+const transactionsPerPage = 6; 
 
 function initializeTransactionHistory() {
     loadTransactions();
