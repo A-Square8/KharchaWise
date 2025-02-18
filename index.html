@@ -68,11 +68,24 @@
             </div>
             <div class="content-box"><button id="addNewBtn" class="on-btn">Add New</button></div>
             <div class="content-box">
-                <h3>Account History</h3>
+                <div class="analysis-buttons">
+                    <button class="analysis-btn" data-modal="analyze">
+                        <span class="btn-text">Analyze</span>
+                        <i class="fas fa-chart-bar btn-icon"></i>
+                    </button>
+                    <button class="analysis-btn" data-modal="budget">
+                        <span class="btn-text">Budget</span>
+                        <i class="fas fa-wallet btn-icon"></i>
+                    </button>
+                    <button class="analysis-btn" data-modal="more">
+                        <span class="btn-text">More</span>
+                        <i class="fas fa-ellipsis-h btn-icon"></i>
+                    </button>
+                </div>
             </div>
             <div class="content-box">
                 <div class="transaction-table-container">
-
+                    <h3>Account History</h3>
                     <div class="transaction-list">
                         <div id="transactionsList"></div>
                     </div>
@@ -88,78 +101,119 @@
 
         </div>
 
-        <!-- transactionForm -->
-        <div id="transactionForm">
+        
 
-            <div class="input-group-add" style="width: 100%;justify-content: space-around;">
-                <button class="on-btn" id="expenseBtn" data-value="Expense"
-                    onclick="selectOption('Expense')">EXPENSE</button>
-                <button class="on-btn" id="incomeBtn" data-value="Income"
-                    onclick="selectOption('Income')">INCOME</button>
-                <button class="on-btn" id="transferBtn" data-value="Transfer"
-                    onclick="selectOption('Transfer')">TRANSFER</button>
-            </div>
 
-            <div class="input-group-add" style="flex-direction: column;">
-                <label for="account">Account</label>
-                <select id="account">
-                    <option value="" disabled selected>Select an account </option>
-                </select>
+        <!-- Modal containers -->
+        <div id="analyzeModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Analysis</h2>
+                    <span class="close-modal">&times;</span>
+                </div>
+                
             </div>
-
-            <div id="toAccountGroup" class="input-group-add" style="flex-direction: column;">
-                <label for="toAccount">To Account</label>
-                <select id="toAccount">
-                    <option value="" disabled selected>Select an account </option>
-                </select>
-            </div>
-
-            <div id="expenseCategoryGroup" class="input-group-add" style="flex-direction: column;">
-                <label for="expenseCategory">Expense Category</label>
-                <select id="expenseCategory">
-                    <option value="" disabled selected>Select a category</option>
-                </select>
-            </div>
-
-            <div class="input-group-add" style="flex-direction: column; height: auto;">
-                <label for="description">Description</label>
-                <textarea id="description" rows="3"></textarea>
-            </div>
-
-            <div class="input-group-add" style="flex-direction: column;">
-                <label for="dateField">Select a date</label>
-                <input type="date" id="dateField"
-                    style="width: 100%;font-size: 16px;border: 1px solid maroon;border-radius: 4px;box-sizing: border-box;padding: 0.5rem;">
-            </div>
-
-            <div class="input-group-add">
-                <input type="text" id="numberInput" readonly>
-            </div>
-
-            <div class="calculator">
-                <button class="calc-btn" data-value="1">1</button>
-                <button class="calc-btn" data-value="2">2</button>
-                <button class="calc-btn" data-value="3">3</button>
-                <button class="calc-btn" data-operation="+">+</button>
-                <button class="calc-btn" data-value="4">4</button>
-                <button class="calc-btn" data-value="5">5</button>
-                <button class="calc-btn" data-value="6">6</button>
-                <button class="calc-btn" data-operation="-">-</button>
-                <button class="calc-btn" data-value="7">7</button>
-                <button class="calc-btn" data-value="8">8</button>
-                <button class="calc-btn" data-value="9">9</button>
-                <button class="calc-btn" data-operation="*">*</button>
-                <button class="calc-btn" data-value="0">0</button>
-                <button class="calc-btn" id="clear">Clr</button>
-                <button class="calc-btn" id="equals">=</button>
-                <button class="calc-btn" data-operation="/">/</button>
-            </div>
-            <button id="addsubmitBtn" class="on-btn">Submit</button>
-            <button id="addcancelBtn" class="on-btn">Cancel</button>
         </div>
 
+        <div id="addTransactionModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Add New Transaction</h2>
+                    <span class="close-modal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group-add" style="width: 100%;justify-content: space-around;">
+                        <button class="on-btn" id="expenseBtn" data-value="Expense"
+                            onclick="selectOption('Expense')">EXPENSE</button>
+                        <button class="on-btn" id="incomeBtn" data-value="Income"
+                            onclick="selectOption('Income')">INCOME</button>
+                        <button class="on-btn" id="transferBtn" data-value="Transfer"
+                            onclick="selectOption('Transfer')">TRANSFER</button>
+                    </div>
+        
+                    <div class="input-group-add" style="flex-direction: column;">
+                        <label for="account">Account</label>
+                        <select id="account">
+                            <option value="" disabled selected>Select an account </option>
+                        </select>
+                    </div>
+        
+                    <div id="toAccountGroup" class="input-group-add" style="flex-direction: column;">
+                        <label for="toAccount">To Account</label>
+                        <select id="toAccount">
+                            <option value="" disabled selected>Select an account </option>
+                        </select>
+                    </div>
+        
+                    <div id="expenseCategoryGroup" class="input-group-add" style="flex-direction: column;">
+                        <label for="expenseCategory">Expense Category</label>
+                        <select id="expenseCategory">
+                            <option value="" disabled selected>Select a category</option>
+                        </select>
+                    </div>
+        
+                    <div class="input-group-add" style="flex-direction: column; height: auto;">
+                        <label for="description">Description</label>
+                        <textarea id="description" rows="3"></textarea>
+                    </div>
+        
+                    <div class="input-group-add" style="flex-direction: column;">
+                        <label for="dateField">Select a date</label>
+                        <input type="date" id="dateField"
+                            style="width: 100%;font-size: 16px;border: 1px solid maroon;border-radius: 4px;box-sizing: border-box;padding: 0.5rem;">
+                    </div>
+        
+                    <div class="input-group-add">
+                        <input type="text" id="numberInput" readonly>
+                    </div>
+        
+                    <div class="calculator">
+                        <button class="calc-btn" data-value="1">1</button>
+                        <button class="calc-btn" data-value="2">2</button>
+                        <button class="calc-btn" data-value="3">3</button>
+                        <button class="calc-btn" data-operation="+">+</button>
+                        <button class="calc-btn" data-value="4">4</button>
+                        <button class="calc-btn" data-value="5">5</button>
+                        <button class="calc-btn" data-value="6">6</button>
+                        <button class="calc-btn" data-operation="-">-</button>
+                        <button class="calc-btn" data-value="7">7</button>
+                        <button class="calc-btn" data-value="8">8</button>
+                        <button class="calc-btn" data-value="9">9</button>
+                        <button class="calc-btn" data-operation="*">*</button>
+                        <button class="calc-btn" data-value="0">0</button>
+                        <button class="calc-btn" id="clear">Clr</button>
+                        <button class="calc-btn" id="equals">=</button>
+                        <button class="calc-btn" data-operation="/">/</button>
+                    </div>
+                    <button id="addsubmitBtn" class="on-btn">Submit</button>
+                </div>
+            </div>
+        </div>
+        
 
+        <div id="budgetModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Budget</h2>
+                    <span class="close-modal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    Budget content will go here
+                </div>
+            </div>
+        </div>
 
+        <div id="moreModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>More Options</h2>
+                    <span class="close-modal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    Additional options will go here
+                </div>
+            </div>
+        </div>
 
     </main>
 

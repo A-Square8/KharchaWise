@@ -91,15 +91,15 @@ signupBtn.addEventListener("click", async () => {
 // Function to save user data to Firebase Realtime Database
 function saveUserDataToDb(user) {
     const userRef = ref(realTimeDb, `users/${user.uid}`);
-    
+
 
     onValue(userRef, (snapshot) => {
         if (!snapshot.exists()) {
             set(userRef, {
                 email: user.email,
                 user_account: {
-                    cash: 0,  
-                    bank: 0   
+                    cash: 0,
+                    bank: 0
                 }, // Default account types
                 user_shop_category: [
                     "Rent", "EMI", "Groceries", "Utility bills", "Education expenses",
@@ -110,12 +110,12 @@ function saveUserDataToDb(user) {
                 ], // Default categories
 
             })
-            .then(() => {
-                console.log("User data saved successfully.");
-            })
-            .catch((error) => {
-                console.error("Error saving user data to DB:", error);
-            });
+                .then(() => {
+                    console.log("User data saved successfully.");
+                })
+                .catch((error) => {
+                    console.error("Error saving user data to DB:", error);
+                });
         } else {
             console.log("User data already exists in the database.");
         }
@@ -191,13 +191,11 @@ document.documentElement.style.setProperty('--box-count', document.querySelector
 
 // add
 document.getElementById('addNewBtn').addEventListener('click', function () {
-    document.getElementById('main').style.display = 'none';
-    document.getElementById('transactionForm').style.display = 'block';
+    document.getElementById('addTransactionModal').style.display = 'block';
 });
 
-document.getElementById('addcancelBtn').addEventListener('click', function () {
-    document.getElementById('transactionForm').style.display = 'none';
-    document.getElementById('main').style.display = 'flex';
+document.querySelector('#addTransactionModal .close-modal').addEventListener('click', function () {
+    document.getElementById('addTransactionModal').style.display = 'none';
 });
 
 
@@ -315,11 +313,11 @@ function operate(a, b, operator) {
 function getCurrentDateInIST() {
     const now = new Date();
 
-    const utcOffset = now.getTimezoneOffset(); 
-    const istOffset = 330; 
-    
+    const utcOffset = now.getTimezoneOffset();
+    const istOffset = 330;
+
     now.setMinutes(now.getMinutes() + utcOffset + istOffset);
-    
+
     return now.toISOString().split('T')[0];
 }
 
@@ -384,10 +382,10 @@ addTBtn.addEventListener("click", async () => {
     try {
         const userId = user.uid;
         const transactionRef = ref(realTimeDb, `user_transaction/${userId}`);
-        
+
         // Generate a unique transaction ID using timestamp
         const transactionId = Date.now().toString();
-        
+
         let transactionData = {
             transaction_id: transactionId,
             transaction_type: selectedOption,
@@ -446,8 +444,7 @@ async function updateAccountBalance(userId, account, amount, transactionType) {
 function clearForm() {
     document.getElementById('numberInput').value = '';
     document.getElementById('description').value = '';
-    document.getElementById('transactionForm').style.display = 'none';
-    document.getElementById('main').style.display = 'flex';
+    document.getElementById('addTransactionModal').style.display = 'none';
 }
 
 
@@ -455,32 +452,32 @@ function clearForm() {
 function updateBalanceDisplay(user) {
     const totalBalanceElement = document.querySelector('.total-balance');
     const accountListElement = document.querySelector('.account-list');
-    
+
     const userAccountRef = ref(realTimeDb, `users/${user.uid}/user_account`);
-    
+
     onValue(userAccountRef, (snapshot) => {
         if (snapshot.exists()) {
             const accounts = snapshot.val();
-            
+
             // Calculate total balance
             const totalBalance = Object.values(accounts).reduce((sum, balance) => sum + balance, 0);
             totalBalanceElement.textContent = `Total Balance: ₹${totalBalance}`;
-            
+
             // Clear existing account list
             accountListElement.innerHTML = '';
-            
+
             // Add individual account balances
             Object.entries(accounts).forEach(([accountName, balance]) => {
                 const accountItem = document.createElement('div');
                 accountItem.className = 'account-item';
-                
+
                 const nameSpan = document.createElement('span');
                 nameSpan.className = 'account-name';
                 nameSpan.textContent = accountName;
-                
+
                 const balanceSpan = document.createElement('span');
                 balanceSpan.textContent = `₹${balance}`;
-                
+
                 accountItem.appendChild(nameSpan);
                 accountItem.appendChild(balanceSpan);
                 accountListElement.appendChild(accountItem);
@@ -522,11 +519,11 @@ navButtons.forEach(button => {
 //transaction history
 
 let currentPage = 1;
-const transactionsPerPage = 6; 
+const transactionsPerPage = 6;
 
 function initializeTransactionHistory() {
     loadTransactions();
-    
+
     document.getElementById('prevPage').addEventListener('click', () => changePage(-1));
     document.getElementById('nextPage').addEventListener('click', () => changePage(1));
 }
@@ -547,7 +544,7 @@ function loadTransactions() {
             });
 
             transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
-            
+
             displayTransactions(transactions);
             updatePaginationControls(transactions.length);
         } else {
@@ -561,11 +558,11 @@ function loadTransactions() {
 function displayTransactions(transactions) {
     const transactionsList = document.getElementById('transactionsList');
     transactionsList.innerHTML = '';
-    
+
     const startIndex = (currentPage - 1) * transactionsPerPage;
     const endIndex = startIndex + transactionsPerPage;
     const currentTransactions = transactions.slice(startIndex, endIndex);
-    
+
     // Create table view for larger screens
     const tableView = document.createElement('div');
     tableView.className = 'transaction-table';
@@ -592,8 +589,8 @@ function displayTransactions(transactions) {
                             </span>
                         </td>
                         <td class="amount ${transaction.transaction_type.toLowerCase()}">
-                            ${transaction.transaction_type === 'Income' ? '+' : 
-                              transaction.transaction_type === 'Expense' ? '-' : ''}
+                            ${transaction.transaction_type === 'Income' ? '+' :
+            transaction.transaction_type === 'Expense' ? '-' : ''}
                             ₹${transaction.amount}
                         </td>
                         <td>${transaction.from_account}</td>
@@ -615,14 +612,14 @@ function displayTransactions(transactions) {
     // Create card view for mobile screens
     const cardView = document.createElement('div');
     cardView.className = 'transaction-cards';
-    
+
     currentTransactions.forEach(transaction => {
         const card = document.createElement('div');
         card.className = 'transaction-item';
-        
-        const amountPrefix = transaction.transaction_type === 'Income' ? '+' : 
-                           transaction.transaction_type === 'Expense' ? '-' : '';
-        
+
+        const amountPrefix = transaction.transaction_type === 'Income' ? '+' :
+            transaction.transaction_type === 'Expense' ? '-' : '';
+
         card.innerHTML = `
             <div class="transaction-header">
                 <div class="transaction-main-info">
@@ -630,9 +627,9 @@ function displayTransactions(transactions) {
                     <span class="transaction-amount ${transaction.transaction_type.toLowerCase()}">
                         ${amountPrefix}₹${transaction.amount}
                     </span>
-                    <span class="transaction-date-main">${formatDateShort(transaction.date)}</span>
                 </div>
                 <button class="toggle-details-btn">
+                    <span class="transaction-date-main">${formatDateShort(transaction.date)}</span>
                     <i class="fas fa-chevron-down"></i>
                 </button>
             </div>
@@ -666,7 +663,7 @@ function displayTransactions(transactions) {
                 </div>
             </div>
         `;
-        
+
         const toggleBtn = card.querySelector('.toggle-details-btn');
         const details = card.querySelector('.transaction-details');
         toggleBtn.addEventListener('click', () => {
@@ -674,7 +671,7 @@ function displayTransactions(transactions) {
             toggleBtn.querySelector('i').classList.toggle('fa-chevron-up');
             toggleBtn.querySelector('i').classList.toggle('fa-chevron-down');
         });
-        
+
         cardView.appendChild(card);
     });
 
@@ -692,11 +689,11 @@ function updatePaginationControls(totalTransactions) {
     const prevButton = document.getElementById('prevPage');
     const nextButton = document.getElementById('nextPage');
     const pageIndicator = document.getElementById('pageIndicator');
-    
+
     prevButton.disabled = currentPage === 1;
     nextButton.disabled = currentPage === totalPages || totalPages === 0;
-    pageIndicator.textContent = totalPages === 0 ? 
-        'No transactions' : 
+    pageIndicator.textContent = totalPages === 0 ?
+        'No transactions' :
         `Page ${currentPage} of ${totalPages}`;
 }
 
@@ -711,55 +708,55 @@ function formatDate(dateString) {
 
 function changePage(step) {
     currentPage += step;
-    loadTransactions(); 
+    loadTransactions();
 }
 
-// Make deleteTransaction function available globally
-window.deleteTransaction = async function(transactionId) {
+
+window.deleteTransaction = async function (transactionId) {
     const user = auth.currentUser;
     if (!user) return;
 
-    // Get the transaction details first to reverse the balance changes
+
     const transactionRef = ref(realTimeDb, `user_transaction/${user.uid}/${transactionId}`);
-    
+
     try {
         const snapshot = await get(transactionRef);
         if (snapshot.exists()) {
             const transaction = snapshot.val();
-            
+
             if (confirm("Are you sure you want to delete this transaction?")) {
-                // Reverse the balance changes
+
                 if (transaction.transaction_type === "Expense") {
                     await updateAccountBalance(
                         user.uid,
                         transaction.from_account,
                         transaction.amount,
-                        "Income" // Reverse of Expense
+                        "Income"
                     );
                 } else if (transaction.transaction_type === "Income") {
                     await updateAccountBalance(
                         user.uid,
                         transaction.from_account,
                         transaction.amount,
-                        "Expense" // Reverse of Income
+                        "Expense"
                     );
                 } else if (transaction.transaction_type === "Transfer") {
-                    // Reverse both the from and to account changes
+
                     await updateAccountBalance(
                         user.uid,
                         transaction.from_account,
                         transaction.amount,
-                        "Income" // Add back to source account
+                        "Income"
                     );
                     await updateAccountBalance(
                         user.uid,
                         transaction.to_account,
                         transaction.amount,
-                        "Expense" // Remove from destination account
+                        "Expense"
                     );
                 }
 
-                // Delete the transaction
+
                 await remove(transactionRef);
                 alert("Transaction deleted successfully!");
                 loadTransactions();
@@ -772,3 +769,36 @@ window.deleteTransaction = async function(transactionId) {
         alert("Failed to delete transaction. Please try again.");
     }
 };
+
+
+// Modal functionality
+document.addEventListener('DOMContentLoaded', function () {
+    const modals = document.querySelectorAll('.modal');
+    const btns = document.querySelectorAll('.analysis-btn');
+    const closeBtns = document.querySelectorAll('.close-modal');
+
+    // Open modal
+    btns.forEach(btn => {
+        btn.addEventListener('click', function () {
+            const modalId = this.getAttribute('data-modal') + 'Modal';
+            document.getElementById(modalId).style.display = 'block';
+        });
+    });
+
+    // Close modal when clicking X
+    closeBtns.forEach(btn => {
+        btn.addEventListener('click', function () {
+            const modal = this.closest('.modal');
+            modal.style.display = 'none';
+        });
+    });
+
+    // Close modal when clicking outside
+    window.addEventListener('click', function (event) {
+        modals.forEach(modal => {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    });
+});
