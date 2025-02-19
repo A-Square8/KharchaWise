@@ -7,6 +7,7 @@
     <title>KharchaWise</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
 </head>
 
 <body>
@@ -101,7 +102,7 @@
 
         </div>
 
-        
+
 
 
         <!-- Modal containers -->
@@ -111,7 +112,52 @@
                     <h2>Analysis</h2>
                     <span class="close-modal">&times;</span>
                 </div>
-                
+                <div class="modal-body">
+                    <div class="analysis-container">
+                        <!-- Pie Chart Section -->
+                        <div class="chart-section">
+                            <h3>Monthly Expenses by Category</h3>
+                            <div class="date-selector">
+                                <select id="pieChartMonth">
+                                    <option value="0">January</option>
+                                    <option value="1">February</option>
+                                    <option value="2">March</option>
+                                    <option value="3">April</option>
+                                    <option value="4">May</option>
+                                    <option value="5">June</option>
+                                    <option value="6">July</option>
+                                    <option value="7">August</option>
+                                    <option value="8">September</option>
+                                    <option value="9">October</option>
+                                    <option value="10">November</option>
+                                    <option value="11">December</option>
+                                </select>
+                                <select id="pieChartYear"></select>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="expensePieChart"></canvas>
+                            </div>
+                            <div class="total-display">
+                                <p>Total Expenses: ₹<span id="totalExpenses">0</span></p>
+                            </div>
+                        </div>
+        
+                        <!-- Bar Chart Section -->
+                        <div class="chart-section">
+                            <h3>Income vs Expenses (Monthly)</h3>
+                            <div class="date-selector">
+                                <select id="barChartYear"></select>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="incomeExpenseChart"></canvas>
+                            </div>
+                            <div class="total-display">
+                                <p>Total Income: ₹<span id="totalIncome">0</span></p>
+                                <p>Total Expense: ₹<span id="totalExpense">0</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -130,43 +176,43 @@
                         <button class="on-btn" id="transferBtn" data-value="Transfer"
                             onclick="selectOption('Transfer')">TRANSFER</button>
                     </div>
-        
+
                     <div class="input-group-add" style="flex-direction: column;">
                         <label for="account">Account</label>
                         <select id="account">
                             <option value="" disabled selected>Select an account </option>
                         </select>
                     </div>
-        
+
                     <div id="toAccountGroup" class="input-group-add" style="flex-direction: column;">
                         <label for="toAccount">To Account</label>
                         <select id="toAccount">
                             <option value="" disabled selected>Select an account </option>
                         </select>
                     </div>
-        
+
                     <div id="expenseCategoryGroup" class="input-group-add" style="flex-direction: column;">
                         <label for="expenseCategory">Expense Category</label>
                         <select id="expenseCategory">
                             <option value="" disabled selected>Select a category</option>
                         </select>
                     </div>
-        
+
                     <div class="input-group-add" style="flex-direction: column; height: auto;">
                         <label for="description">Description</label>
                         <textarea id="description" rows="3"></textarea>
                     </div>
-        
+
                     <div class="input-group-add" style="flex-direction: column;">
                         <label for="dateField">Select a date</label>
                         <input type="date" id="dateField"
                             style="width: 100%;font-size: 16px;border: 1px solid maroon;border-radius: 4px;box-sizing: border-box;padding: 0.5rem;">
                     </div>
-        
+
                     <div class="input-group-add">
                         <input type="text" id="numberInput" readonly>
                     </div>
-        
+
                     <div class="calculator">
                         <button class="calc-btn" data-value="1">1</button>
                         <button class="calc-btn" data-value="2">2</button>
@@ -189,7 +235,7 @@
                 </div>
             </div>
         </div>
-        
+
 
         <div id="budgetModal" class="modal">
             <div class="modal-content">
@@ -210,7 +256,7 @@
                     <span class="close-modal">&times;</span>
                 </div>
                 <div class="modal-body">
-     
+
                     <div class="option-section">
                         <h3>Add New Expense Type</h3>
                         <div class="input-group-add">
@@ -218,11 +264,11 @@
                             <button class="on-btn" id="addExpenseTypeBtn">Add Category</button>
                         </div>
                         <div id="expenseTypeList" class="list-container">
-              
+
                         </div>
                     </div>
-                
-    
+
+
                     <div class="option-section">
                         <h3>Add New Account</h3>
                         <div class="input-group-add">
@@ -234,8 +280,8 @@
 
                         </div>
                     </div>
-                
- 
+
+
                     <div class="option-section">
                         <h3>Export Transactions</h3>
                         <div class="date-range-container">

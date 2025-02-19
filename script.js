@@ -1031,3 +1031,226 @@ async function exportTransactions() {
 document.querySelector('[data-modal="more"]').addEventListener('click', initializeMoreOptions);
 
 
+
+let pieChart = null;
+let barChart = null;
+
+
+function initializeAnalysis() {
+
+    const currentYear = new Date().getFullYear();
+    const yearDropdowns = [
+        document.getElementById('pieChartYear'),
+        document.getElementById('barChartYear')
+    ];
+
+    yearDropdowns.forEach(dropdown => {
+        for (let year = currentYear; year >= currentYear - 4; year--) {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            dropdown.appendChild(option);
+        }
+    });
+
+    document.getElementById('pieChartMonth').value = new Date().getMonth();
+
+
+    createPieChart();
+    createBarChart();
+
+    document.getElementById('pieChartMonth').addEventListener('change', updatePieChart);
+    document.getElementById('pieChartYear').addEventListener('change', updatePieChart);
+    document.getElementById('barChartYear').addEventListener('change', updateBarChart);
+}
+
+async function updatePieChart() {
+    const month = parseInt(document.getElementById('pieChartMonth').value);
+    const year = parseInt(document.getElementById('pieChartYear').value);
+    
+    try {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        const transactionsRef = ref(realTimeDb, `user_transaction/${user.uid}`);
+        const snapshot = await get(transactionsRef);
+        
+        const categoryMap = new Map();
+        let totalExpense = 0;
+
+        if (snapshot.exists()) {
+            snapshot.forEach((childSnapshot) => {
+                const transaction = childSnapshot.val();
+                const transactionDate = new Date(transaction.date);
+                
+                if (transactionDate.getMonth() === month && 
+                    transactionDate.getFullYear() === year && 
+                    transaction.transaction_type === 'Expense') {
+                    const category = transaction.expense_category;
+                    const amount = transaction.amount;
+                    categoryMap.set(category, (categoryMap.get(category) || 0) + amount);
+                    totalExpense += amount;
+                }
+            });
+        }
+
+        const labels = Array.from(categoryMap.keys());
+        const data = Array.from(categoryMap.values());
+        
+        // Generate colors based on the number of categories
+        const colors = getColorArray(labels.length);
+
+        pieChart.data.labels = labels;
+        pieChart.data.datasets[0].data = data;
+        pieChart.data.datasets[0].backgroundColor = colors;
+        pieChart.update();
+
+        document.getElementById('totalExpenses').textContent = totalExpense.toLocaleString();
+    } catch (error) {
+        console.error('Error updating pie chart:', error);
+    }
+}
+
+async function updateBarChart() {
+    const year = parseInt(document.getElementById('barChartYear').value);
+    
+    try {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        const transactionsRef = ref(realTimeDb, `user_transaction/${user.uid}`);
+        const snapshot = await get(transactionsRef);
+        
+        const monthlyData = Array(12).fill().map(() => ({ income: 0, expense: 0 }));
+        let totalIncome = 0;
+        let totalExpense = 0;
+
+        if (snapshot.exists()) {
+            snapshot.forEach((childSnapshot) => {
+                const transaction = childSnapshot.val();
+                const transactionDate = new Date(transaction.date);
+                
+                if (transactionDate.getFullYear() === year) {
+                    const month = transactionDate.getMonth();
+                    
+                    if (transaction.transaction_type === 'Income') {
+                        monthlyData[month].income += transaction.amount;
+                        totalIncome += transaction.amount;
+                    } else if (transaction.transaction_type === 'Expense') {
+                        monthlyData[month].expense += transaction.amount;
+                        totalExpense += transaction.amount;
+                    }
+                }
+            });
+        }
+
+        barChart.data.datasets[0].data = monthlyData.map(d => d.income);
+        barChart.data.datasets[1].data = monthlyData.map(d => d.expense);
+        barChart.update();
+
+        document.getElementById('totalIncome').textContent = totalIncome.toLocaleString();
+        document.getElementById('totalExpense').textContent = totalExpense.toLocaleString();
+    } catch (error) {
+        console.error('Error updating bar chart:', error);
+    }
+}
+
+function generateRandomColor() {
+
+    const hue = Math.floor(Math.random() * 360);
+    const saturation = Math.floor(70 + Math.random() * 30);
+    const lightness = Math.floor(45 + Math.random() * 20);
+    return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+}
+
+function getColorArray(count) {
+    // Generate an array of distinct random colors
+    const colors = new Set();
+    while (colors.size < count) {
+        colors.add(generateRandomColor());
+    }
+    return Array.from(colors);
+}
+
+function createPieChart() {
+    const ctx = document.getElementById('expensePieChart').getContext('2d');
+    pieChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: [],
+            datasets: [{
+                data: [],
+                backgroundColor: [] // Colors will be set dynamically
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        boxWidth: 12
+                    }
+                }
+            }
+        }
+    });
+}
+
+
+function createBarChart() {
+    const ctx = document.getElementById('incomeExpenseChart').getContext('2d');
+    barChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            datasets: [
+                {
+                    label: 'Income',
+                    backgroundColor: '#36A2EB',
+                    data: []
+                },
+                {
+                    label: 'Expense',
+                    backgroundColor: '#FF6384',
+                    data: []
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: value => '₹' + value.toLocaleString()
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: context => {
+                            const label = context.dataset.label;
+                            const value = context.raw;
+                            return `${label}: ₹${value.toLocaleString()}`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Initialize when analyze modal is opened
+document.querySelector('[data-modal="analyze"]').addEventListener('click', function() {
+    if (!pieChart || !barChart) {
+        initializeAnalysis();
+    }
+    updatePieChart();
+    updateBarChart();
+});
+
