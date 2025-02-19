@@ -210,7 +210,48 @@
                     <span class="close-modal">&times;</span>
                 </div>
                 <div class="modal-body">
-                    Additional options will go here
+     
+                    <div class="option-section">
+                        <h3>Add New Expense Type</h3>
+                        <div class="input-group-add">
+                            <input type="text" id="newExpenseType" placeholder="Enter new expense type">
+                            <button class="on-btn" id="addExpenseTypeBtn">Add Category</button>
+                        </div>
+                        <div id="expenseTypeList" class="list-container">
+              
+                        </div>
+                    </div>
+                
+    
+                    <div class="option-section">
+                        <h3>Add New Account</h3>
+                        <div class="input-group-add">
+                            <input type="text" id="newAccountName" placeholder="Enter account name">
+                            <input type="number" id="newAccountBalance" placeholder="Initial balance">
+                            <button class="on-btn" id="addAccountBtn">Add Account</button>
+                        </div>
+                        <div id="accountList" class="list-container">
+
+                        </div>
+                    </div>
+                
+ 
+                    <div class="option-section">
+                        <h3>Export Transactions</h3>
+                        <div class="date-range-container">
+                            <div class="input-group-add">
+                                <label for="startDate">Start Date</label>
+                                <input type="date" id="startDate">
+                            </div>
+                            <div class="input-group-add">
+                                <label for="endDate">End Date</label>
+                                <input type="date" id="endDate">
+                            </div>
+                        </div>
+                        <button class="on-btn" id="exportCSVBtn">
+                            <i class="fas fa-download"></i> Download CSV
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

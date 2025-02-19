@@ -771,13 +771,12 @@ window.deleteTransaction = async function (transactionId) {
 };
 
 
-// Modal functionality
+
 document.addEventListener('DOMContentLoaded', function () {
     const modals = document.querySelectorAll('.modal');
     const btns = document.querySelectorAll('.analysis-btn');
     const closeBtns = document.querySelectorAll('.close-modal');
 
-    // Open modal
     btns.forEach(btn => {
         btn.addEventListener('click', function () {
             const modalId = this.getAttribute('data-modal') + 'Modal';
@@ -785,7 +784,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Close modal when clicking X
     closeBtns.forEach(btn => {
         btn.addEventListener('click', function () {
             const modal = this.closest('.modal');
@@ -793,7 +791,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Close modal when clicking outside
     window.addEventListener('click', function (event) {
         modals.forEach(modal => {
             if (event.target === modal) {
@@ -802,3 +799,235 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
+
+
+
+
+
+
+// More Options Modal Functionality
+function initializeMoreOptions() {
+    // Set default dates
+    const today = new Date();
+    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    
+    document.getElementById('startDate').value = firstDayOfMonth.toISOString().split('T')[0];
+    document.getElementById('endDate').value = today.toISOString().split('T')[0];
+
+    // Initialize event listeners
+    document.getElementById('addExpenseTypeBtn').addEventListener('click', addNewExpenseType);
+    document.getElementById('addAccountBtn').addEventListener('click', addNewAccount);
+    document.getElementById('exportCSVBtn').addEventListener('click', exportTransactions);
+
+    // Load existing data
+    loadExpenseTypes();
+    loadAccounts();
+}
+
+async function addNewExpenseType() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const newType = document.getElementById('newExpenseType').value.trim();
+    if (!newType) {
+        alert('Please enter an expense type');
+        return;
+    }
+
+    try {
+        const categoriesRef = ref(realTimeDb, `users/${user.uid}/user_shop_category`);
+        const snapshot = await get(categoriesRef);
+        const categories = snapshot.val() || [];
+
+        if (categories.includes(newType)) {
+            alert('This category already exists');
+            return;
+        }
+
+        categories.push(newType);
+        await set(categoriesRef, categories);
+        
+        document.getElementById('newExpenseType').value = '';
+        loadExpenseTypes();
+    } catch (error) {
+        console.error('Error adding expense type:', error);
+        alert('Failed to add expense type');
+    }
+}
+
+async function addNewAccount() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const accountName = document.getElementById('newAccountName').value.trim().toLowerCase();
+    const balance = parseFloat(document.getElementById('newAccountBalance').value) || 0;
+
+    if (!accountName) {
+        alert('Please enter an account name');
+        return;
+    }
+
+    try {
+        const accountRef = ref(realTimeDb, `users/${user.uid}/user_account/${accountName}`);
+        const snapshot = await get(accountRef);
+
+        if (snapshot.exists()) {
+            alert('This account already exists');
+            return;
+        }
+
+        await set(accountRef, balance);
+        
+        document.getElementById('newAccountName').value = '';
+        document.getElementById('newAccountBalance').value = '';
+        loadAccounts();
+    } catch (error) {
+        console.error('Error adding account:', error);
+        alert('Failed to add account');
+    }
+}
+
+function loadExpenseTypes() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const categoriesRef = ref(realTimeDb, `users/${user.uid}/user_shop_category`);
+    onValue(categoriesRef, (snapshot) => {
+        const categories = snapshot.val() || [];
+        const container = document.getElementById('expenseTypeList');
+        container.innerHTML = '';
+
+        categories.forEach(category => {
+            const div = document.createElement('div');
+            div.className = 'list-item';
+            div.innerHTML = `
+                <span>${category}</span>
+                <button class="delete-item-btn" onclick="deleteExpenseType('${category}')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            container.appendChild(div);
+        });
+    });
+}
+
+function loadAccounts() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const accountsRef = ref(realTimeDb, `users/${user.uid}/user_account`);
+    onValue(accountsRef, (snapshot) => {
+        const accounts = snapshot.val() || {};
+        const container = document.getElementById('accountList');
+        container.innerHTML = '';
+
+        Object.entries(accounts).forEach(([account, balance]) => {
+            const div = document.createElement('div');
+            div.className = 'list-item';
+            div.innerHTML = `
+                <span>${account} (₹${balance})</span>
+                <button class="delete-item-btn" onclick="deleteAccount('${account}')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            container.appendChild(div);
+        });
+    });
+}
+
+window.deleteExpenseType = async function(category) {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    if (!confirm(`Are you sure you want to delete "${category}"?`)) return;
+
+    try {
+        const categoriesRef = ref(realTimeDb, `users/${user.uid}/user_shop_category`);
+        const snapshot = await get(categoriesRef);
+        const categories = snapshot.val() || [];
+
+        const updatedCategories = categories.filter(c => c !== category);
+        await set(categoriesRef, updatedCategories);
+    } catch (error) {
+        console.error('Error deleting category:', error);
+        alert('Failed to delete category');
+    }
+}
+
+window.deleteAccount = async function(account) {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    if (!confirm(`Are you sure you want to delete "${account}"?`)) return;
+
+    try {
+        const accountRef = ref(realTimeDb, `users/${user.uid}/user_account/${account}`);
+        await remove(accountRef);
+    } catch (error) {
+        console.error('Error deleting account:', error);
+        alert('Failed to delete account');
+    }
+}
+
+
+async function exportTransactions() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+
+    try {
+        const transactionsRef = ref(realTimeDb, `user_transaction/${user.uid}`);
+        const snapshot = await get(transactionsRef);
+        let transactions = [];
+
+        if (snapshot.exists()) {
+            snapshot.forEach((childSnapshot) => {
+                const transaction = childSnapshot.val();
+                if (transaction.date >= startDate && transaction.date <= endDate) {
+                    transactions.push(transaction);
+                }
+            });
+        }
+
+        if (transactions.length === 0) {
+            alert('No transactions found for the selected date range');
+            return;
+        }
+
+        // Convert to CSV
+        const headers = ['Date', 'Type', 'Amount', 'From Account', 'To/Category', 'Description'];
+        const csvContent = [
+            headers.join(','),
+            ...transactions.map(t => [
+                t.date,
+                t.transaction_type,
+                t.amount,
+                t.from_account,
+                t.to_account || t.expense_category || '-',
+                t.description || '-'
+            ].join(','))
+        ].join('\n');
+
+        // Download CSV
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.setAttribute('href', url);
+        a.setAttribute('download', `transactions_${startDate}_to_${endDate}.csv`);
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error('Error exporting transactions:', error);
+        alert('Failed to export transactions');
+    }
+}
+
+
+document.querySelector('[data-modal="more"]').addEventListener('click', initializeMoreOptions);
+
+
