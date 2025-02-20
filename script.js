@@ -1342,16 +1342,16 @@ async function setBudget() {
 
 // Initialize budget management
 function initializeBudgetManagement() {
-    // Populate categories when budget modal opens
+
     document.querySelector('[data-modal="budget"]').addEventListener('click', () => {
         populateBudgetCategories();
     });
 
-    // Set budget when button is clicked
+
     document.getElementById('setBudgetBtn').addEventListener('click', setBudget);
 }
 
-// Call initialization when DOM is loaded
+
 document.addEventListener('DOMContentLoaded', initializeBudgetManagement);
 
 
@@ -1375,10 +1375,10 @@ function displayCurrentBudgets() {
                 let shouldDisplay = false;
 
                 if (selectedMonth === 'all') {
-                    // For yearly view, only show budgets where active_months array has length 12
+ 
                     shouldDisplay = budgetData.active_months.length >= 2;
                 } else {
-                    // For monthly view, show both yearly budgets and specific month budgets
+
                     shouldDisplay = budgetData.active_months.length === 12 || 
                                   budgetData.active_months.includes(selectedMonth);
                 }
@@ -1477,4 +1477,153 @@ function initializeCurrentBudgets() {
 }
 document.querySelector('[data-modal="budget"]').addEventListener('click', () => {
     initializeCurrentBudgets();
+});
+
+
+
+
+let budgetChart = null;
+
+function initializeBudgetAnalysis() {
+    // Create initial chart
+    createBudgetChart();
+    
+    // Set current year in year dropdown
+    const yearDropdown = document.getElementById('budgetAnalysisYear');
+    const currentYear = new Date().getFullYear();
+    for (let year = currentYear; year >= currentYear - 4; year--) {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = year;
+        yearDropdown.appendChild(option);
+    }
+    
+    // Add event listeners
+    document.getElementById('budgetAnalysisMonth').addEventListener('change', updateBudgetAnalysis);
+    document.getElementById('budgetAnalysisYear').addEventListener('change', updateBudgetAnalysis);
+    
+    // Initial update
+    updateBudgetAnalysis();
+}
+
+function createBudgetChart() {
+    const ctx = document.getElementById('budgetChart').getContext('2d');
+    budgetChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: [],
+            datasets: [
+                {
+                    label: 'Budget',
+                    backgroundColor: '#36A2EB',
+                    data: []
+                },
+                {
+                    label: 'Actual Expenses',
+                    backgroundColor: '#FF6384',
+                    data: []
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: value => '₹' + value.toLocaleString()
+                    }
+                }
+            }
+        }
+    });
+}
+
+async function updateBudgetAnalysis() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const selectedMonth = document.getElementById('budgetAnalysisMonth').value;
+    const selectedYear = parseInt(document.getElementById('budgetAnalysisYear').value);
+
+    try {
+        // Get budgets
+        const budgetRef = ref(realTimeDb, `user_budget/${user.uid}`);
+        const budgetSnapshot = await get(budgetRef);
+        
+        // Get transactions
+        const transactionRef = ref(realTimeDb, `user_transaction/${user.uid}`);
+        const transactionSnapshot = await get(transactionRef);
+
+        let budgetData = {};
+        let expenseData = {};
+        
+        // Process budgets
+        if (budgetSnapshot.exists()) {
+            const budgets = budgetSnapshot.val();
+            Object.entries(budgets).forEach(([category, budget]) => {
+                if (budget.year === selectedYear && 
+                    (selectedMonth === 'all' || budget.active_months.includes(selectedMonth))) {
+                    budgetData[category] = budget.amount;
+                }
+            });
+        }
+
+        // Process expenses
+        if (transactionSnapshot.exists()) {
+            const transactions = transactionSnapshot.val();
+            
+            // Calculate total expenses for all categories first
+            let totalExpenses = 0;
+            
+            Object.values(transactions).forEach(transaction => {
+                if (transaction.transaction_type === 'Expense') {
+                    const transactionDate = new Date(transaction.date);
+                    const transactionMonth = transactionDate.getMonth().toString();
+                    const transactionYear = transactionDate.getFullYear();
+
+                    if (transactionYear === selectedYear && 
+                        (selectedMonth === 'all' || transactionMonth === selectedMonth)) {
+                        // Add to total expenses
+                        totalExpenses += transaction.amount;
+                        
+                        // Add to category-specific expenses if budget exists for that category
+                        if (budgetData.hasOwnProperty(transaction.expense_category)) {
+                            expenseData[transaction.expense_category] = 
+                                (expenseData[transaction.expense_category] || 0) + transaction.amount;
+                        }
+                    }
+                }
+            });
+
+            // If 'all' budget exists, set its expense to total expenses
+            if (budgetData.hasOwnProperty('all')) {
+                expenseData['all'] = totalExpenses;
+            }
+        }
+
+        // Update chart with budget categories only
+        const labels = Object.keys(budgetData);
+        const budgetAmounts = labels.map(category => budgetData[category]);
+        const expenseAmounts = labels.map(category => expenseData[category] || 0);
+
+        budgetChart.data.labels = labels;
+        budgetChart.data.datasets[0].data = budgetAmounts;
+        budgetChart.data.datasets[1].data = expenseAmounts;
+        budgetChart.update();
+
+    } catch (error) {
+        console.error('Error updating budget analysis:', error);
+    }
+}
+
+
+// Initialize when budget modal is opened
+document.querySelector('[data-modal="budget"]').addEventListener('click', () => {
+    if (!budgetChart) {
+        initializeBudgetAnalysis();
+    } else {
+        updateBudgetAnalysis();
+    }
 });
