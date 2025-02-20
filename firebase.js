@@ -18,3 +18,7 @@ const provider = new GoogleAuthProvider();
 const realTimeDb = getDatabase(app); 
 
 export { auth, provider, realTimeDb };
+
+
+
+

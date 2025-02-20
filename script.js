@@ -1180,7 +1180,7 @@ function createPieChart() {
             labels: [],
             datasets: [{
                 data: [],
-                backgroundColor: [] // Colors will be set dynamically
+                backgroundColor: [] 
             }]
         },
         options: {
@@ -1254,3 +1254,227 @@ document.querySelector('[data-modal="analyze"]').addEventListener('click', funct
     updateBarChart();
 });
 
+
+
+//budgeting
+
+// Function to populate budget categories
+function populateBudgetCategories() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const budgetCategorySelect = document.getElementById('budgetCategory');
+    budgetCategorySelect.innerHTML = ''; // Clear existing options
+
+    // Add "All" option first
+    const allOption = document.createElement('option');
+    allOption.value = 'all';
+    allOption.textContent = 'All Categories';
+    budgetCategorySelect.appendChild(allOption);
+
+    // Fetch and add user categories
+    const categoriesRef = ref(realTimeDb, `users/${user.uid}/user_shop_category`);
+    onValue(categoriesRef, (snapshot) => {
+        if (snapshot.exists()) {
+            const categories = snapshot.val();
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                budgetCategorySelect.appendChild(option);
+            });
+        }
+    });
+}
+
+// Function to set new budget
+async function setBudget() {
+    const user = auth.currentUser;
+    if (!user) {
+        alert('Please sign in first');
+        return;
+    }
+
+    const category = document.getElementById('budgetCategory').value;
+    const amount = parseFloat(document.getElementById('budgetAmount').value);
+    const monthSelection = document.getElementById('budgetMonth').value;
+
+    // Validation
+    if (!category || !amount || amount <= 0) {
+        alert('Please select a category and enter a valid amount');
+        return;
+    }
+
+    try {
+        const budgetRef = ref(realTimeDb, `user_budget/${user.uid}`);
+        const currentYear = new Date().getFullYear();
+
+        // Determine active months
+        let activeMonths;
+        if (monthSelection === 'all') {
+            activeMonths = Array.from({length: 12}, (_, i) => i.toString()); // 0-11 for all months
+        } else {
+            activeMonths = [monthSelection];
+        }
+
+        // Create budget data structure
+        const budgetData = {
+            amount: amount,
+            active_months: activeMonths,
+            year: currentYear
+        };
+
+        // Update the budget in Firebase
+        const updates = {};
+        updates[`${category}`] = budgetData;
+
+        await update(budgetRef, updates);
+
+        alert('Budget set successfully!');
+        document.getElementById('budgetAmount').value = '';
+        document.getElementById('budgetMonth').value = 'all';
+
+    } catch (error) {
+        console.error('Error setting budget:', error);
+        alert('Failed to set budget. Please try again.');
+    }
+}
+
+// Initialize budget management
+function initializeBudgetManagement() {
+    // Populate categories when budget modal opens
+    document.querySelector('[data-modal="budget"]').addEventListener('click', () => {
+        populateBudgetCategories();
+    });
+
+    // Set budget when button is clicked
+    document.getElementById('setBudgetBtn').addEventListener('click', setBudget);
+}
+
+// Call initialization when DOM is loaded
+document.addEventListener('DOMContentLoaded', initializeBudgetManagement);
+
+
+
+// Function to display current budgets based on selected month
+function displayCurrentBudgets() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const selectedMonth = document.getElementById('currentBudgetMonth').value;
+    const budgetListContainer = document.getElementById('budgetList');
+    
+    const budgetRef = ref(realTimeDb, `user_budget/${user.uid}`);
+    onValue(budgetRef, (snapshot) => {
+        budgetListContainer.innerHTML = '';
+
+        if (snapshot.exists()) {
+            const budgets = snapshot.val();
+            
+            Object.entries(budgets).forEach(([category, budgetData]) => {
+                let shouldDisplay = false;
+
+                if (selectedMonth === 'all') {
+                    // For yearly view, only show budgets where active_months array has length 12
+                    shouldDisplay = budgetData.active_months.length >= 2;
+                } else {
+                    // For monthly view, show both yearly budgets and specific month budgets
+                    shouldDisplay = budgetData.active_months.length === 12 || 
+                                  budgetData.active_months.includes(selectedMonth);
+                }
+
+                if (shouldDisplay) {
+                    const budgetItem = document.createElement('div');
+                    budgetItem.className = 'budget-item';
+                    budgetItem.innerHTML = `
+                        <div class="budget-info">
+                            <span class="budget-category">${category}</span>
+                            <span class="budget-amount">₹${budgetData.amount.toLocaleString()}</span>
+                        </div>
+                        <button class="delete-budget-btn" title="Delete Budget">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+
+                    budgetItem.querySelector('.delete-budget-btn').addEventListener('click', () => {
+                        deleteBudget(category, selectedMonth);
+                    });
+
+                    budgetListContainer.appendChild(budgetItem);
+                }
+            });
+
+            if (budgetListContainer.children.length === 0) {
+                budgetListContainer.innerHTML = '<div class="no-budget">No budgets set for this period</div>';
+            }
+        } else {
+            budgetListContainer.innerHTML = '<div class="no-budget">No budgets found</div>';
+        }
+    });
+}
+
+
+// Modified delete function
+async function deleteBudget(category, month) {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    if (!confirm(`Are you sure you want to delete the budget for ${category}?`)) {
+        return;
+    }
+
+    try {
+        const budgetRef = ref(realTimeDb, `user_budget/${user.uid}/${category}`);
+        const snapshot = await get(budgetRef);
+
+        if (snapshot.exists()) {
+            const budgetData = snapshot.val();
+
+            if (month === 'all') {
+            
+                await remove(budgetRef);
+            } else {
+      
+                let activeMonths = budgetData.active_months;
+                
+
+                activeMonths = activeMonths.filter(m => m !== month);
+                
+                if (activeMonths.length === 0) {
+            
+                    await remove(budgetRef);
+                } else {
+                   
+                    await update(budgetRef, {
+                        active_months: activeMonths
+                    });
+                }
+            }
+
+            
+            displayCurrentBudgets();
+        }
+    } catch (error) {
+        console.error('Error deleting budget:', error);
+        alert('Failed to delete budget. Please try again.');
+    }
+}
+
+
+
+
+function initializeCurrentBudgets() {
+
+    const currentMonth = new Date().getMonth().toString();
+    const currentBudgetMonth = document.getElementById('currentBudgetMonth');
+    currentBudgetMonth.value = currentMonth;
+
+    
+    currentBudgetMonth.addEventListener('change', displayCurrentBudgets);
+
+
+    displayCurrentBudgets();
+}
+document.querySelector('[data-modal="budget"]').addEventListener('click', () => {
+    initializeCurrentBudgets();
+});

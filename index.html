@@ -141,7 +141,7 @@
                                 <p>Total Expenses: ₹<span id="totalExpenses">0</span></p>
                             </div>
                         </div>
-        
+
                         <!-- Bar Chart Section -->
                         <div class="chart-section">
                             <h3>Income vs Expenses (Monthly)</h3>
@@ -237,14 +237,91 @@
         </div>
 
 
+
         <div id="budgetModal" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2>Budget</h2>
+                    <h2>Budget Management</h2>
                     <span class="close-modal">&times;</span>
                 </div>
                 <div class="modal-body">
-                    Budget content will go here
+
+                    <div class="budget-section">
+                        <h3>Set New Budget</h3>
+                        <div class="input-group-add">
+                            <select id="budgetCategory">
+                                <option value="" disabled selected>Select Category</option>
+                            </select>
+                            <select id="budgetMonth">
+                                <option value="all">Whole Year</option>
+                                <option value="0">January</option>
+                                <option value="1">February</option>
+                                <option value="2">March</option>
+                                <option value="3">April</option>
+                                <option value="4">May</option>
+                                <option value="5">June</option>
+                                <option value="6">July</option>
+                                <option value="7">August</option>
+                                <option value="8">September</option>
+                                <option value="9">October</option>
+                                <option value="10">November</option>
+                                <option value="11">December</option>
+                            </select>
+                            <input type="number" id="budgetAmount" placeholder="Enter budget amount">
+                            <button class="on-btn" id="setBudgetBtn">Set Budget</button>
+                        </div>
+                    </div>
+
+                    <div class="budget-section">
+                        <h3>Current Budgets</h3>
+                        <div class="date-selector">
+                            <select id="currentBudgetMonth">
+                                <option value="all">Whole Year</option>
+                                <option value="0">January</option>
+                                <option value="1">February</option>
+                                <option value="2">March</option>
+                                <option value="3">April</option>
+                                <option value="4">May</option>
+                                <option value="5">June</option>
+                                <option value="6">July</option>
+                                <option value="7">August</option>
+                                <option value="8">September</option>
+                                <option value="9">October</option>
+                                <option value="10">November</option>
+                                <option value="11">December</option>
+                            </select>
+                        </div>
+                        <div id="budgetList" class="list-container">
+
+                        </div>
+                    </div>
+
+                    <div class="budget-section">
+                        <h3>Budget Analysis</h3>
+                        <div class="date-selector">
+                            <select id="budgetAnalysisMonth">
+                                <option value="all">Whole Year</option>
+                                <option value="0">January</option>
+                                <option value="1">February</option>
+                                <option value="2">March</option>
+                                <option value="3">April</option>
+                                <option value="4">May</option>
+                                <option value="5">June</option>
+                                <option value="6">July</option>
+                                <option value="7">August</option>
+                                <option value="8">September</option>
+                                <option value="9">October</option>
+                                <option value="10">November</option>
+                                <option value="11">December</option>
+                            </select>
+                            <select id="budgetAnalysisYear">
+
+                            </select>
+                        </div>
+                        <div class="budget-chart-container">
+                            <canvas id="budgetChart"></canvas>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
