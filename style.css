@@ -338,6 +338,80 @@ body {
     gap: 0.75rem;
 }
 
+.transaction-table td,
+.transaction-table th {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.transaction-table .amount,
+.transaction-amount,
+.account-item span,
+.detail-value {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+select option {
+    white-space: nowrap;
+}
+
+#account option,
+#toAccount option {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media screen and (max-width: 767px) {
+    .transaction-table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .transaction-table {
+        min-width: 100%;
+        table-layout: fixed;
+    }
+    
+    .transaction-table td,
+    .transaction-table th {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 120px;
+    }
+    
+    .transaction-table .amount {
+        min-width: 80px;
+        text-align: right;
+    }
+}
+
+.transaction-amount {
+    white-space: nowrap;
+    display: inline-block;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.account-item {
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.account-item span:last-child {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100px;
+    display: inline-block;
+}
+
+
 .nav-btn {
     width: 12px;
     height: 12px;
