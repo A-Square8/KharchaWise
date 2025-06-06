@@ -1597,13 +1597,13 @@ async function updateBudgetAnalysis() {
                 }
             });
 
-            // If 'all' budget exists, set its expense to total expenses
+
             if (budgetData.hasOwnProperty('all')) {
                 expenseData['all'] = totalExpenses;
             }
         }
 
-        // Update chart with budget categories only
+
         const labels = Object.keys(budgetData);
         const budgetAmounts = labels.map(category => budgetData[category]);
         const expenseAmounts = labels.map(category => expenseData[category] || 0);
