@@ -1,3 +1,4 @@
+<!-- base layout for the application -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>KharchaWise Finance</title>
-    <!-- Google Fonts -->
+
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
@@ -14,11 +15,10 @@
 </head>
 
 <body>
-    <!-- App Background Elements -->
+
     <div class="bg-shape shadow-1"></div>
     <div class="bg-shape shadow-2"></div>
 
-    <!-- Authorization Screen -->
     <div id="auth-container" class="auth-wrapper">
         <div class="auth-card glassmorphism">
 
@@ -74,10 +74,8 @@
         </div>
     </div>
 
-    <!-- Main App UI -->
     <main id="main-content" class="app-layout" style="display: none;">
 
-        <!-- Sidebar (Desktop) / Bottom Nav (Mobile) -->
         <nav class="app-nav glassmorphism">
             <div class="nav-brand">
                 <i class="fas fa-wallet"></i> <span class="brand-name">KharchaWise</span>
@@ -116,7 +114,6 @@
             </div>
         </nav>
 
-        <!-- Main Content Area -->
         <div class="app-content-area">
 
             <header class="app-header">
@@ -124,19 +121,20 @@
                     <h2>Overview</h2>
                     <p class="subtitle" id="current-date-display">Welcome back</p>
                 </div>
-                <div class="header-actions mobile-only">
+                <div class="header-actions mobile-only" style="display: flex; gap: 8px;">
                     <button id="mobile-theme-toggle" class="app-icon-btn" title="Toggle Theme">
                         <i class="fas fa-moon"></i>
+                    </button>
+                    <button id="mobile-signout-btn" class="app-icon-btn" title="Sign Out">
+                        <i class="fas fa-sign-out-alt"></i>
                     </button>
                 </div>
             </header>
 
             <div class="dashboard-grid">
 
-                <!-- Left Column / Top Section -->
                 <div class="dash-col main-col content-box">
 
-                    <!-- Balance Card -->
                     <div class="balance-card-wrapper glassmorphism">
                         <div class="balance-slider">
                             <div class="balance-container slider-pane">
@@ -144,7 +142,7 @@
                                 <h1 class="total-balance">₹0</h1>
                             </div>
                             <div class="account-list slider-pane" style="transform: translateX(100%);">
-                                <!-- Accounts load here -->
+
                             </div>
                         </div>
                         <div class="slider-controls">
@@ -153,7 +151,6 @@
                         </div>
                     </div>
 
-                    <!-- History Section -->
                     <div class="history-section full-card glassmorphism transaction-table-container">
                         <div class="history-header">
                             <h3>Transaction History</h3>
@@ -187,14 +184,13 @@
 
                 </div>
 
-                <!-- Right Column / Bottom Section (Widgets) -->
                 <div class="dash-col side-col">
 
                     <div class="widget-card glassmorphism">
                         <div class="widget-header">
                             <h3>Quick Actions</h3>
                         </div>
-                        <!-- We simulate clicking the invisible original nav buttons using this -->
+
                         <div class="quick-action-grid">
                             <button class="quick-action-item analysis-btn" data-modal="analyze">
                                 <div class="qa-icon"
@@ -222,7 +218,6 @@
 
         </div>
 
-        <!-- Floating Action Button -->
         <button id="addNewBtn" class="fab shadow-glow">
             <i class="fas fa-plus"></i>
         </button>
@@ -307,7 +302,6 @@
             </div>
         </div>
 
-        <!-- Analyze Modal -->
         <div id="analyzeModal" class="modal app-modal">
             <div class="modal-content glassmorphism bottom-sheet">
                 <div class="modal-drag-handle mobile-only"></div>
@@ -357,7 +351,6 @@
             </div>
         </div>
 
-        <!-- Budget Modal -->
         <div id="budgetModal" class="modal app-modal">
             <div class="modal-content glassmorphism bottom-sheet">
                 <div class="modal-drag-handle mobile-only"></div>
@@ -445,7 +438,6 @@
             </div>
         </div>
 
-        <!-- More/Settings Modal -->
         <div id="moreModal" class="modal app-modal">
             <div class="modal-content glassmorphism bottom-sheet">
                 <div class="modal-drag-handle mobile-only"></div>

@@ -1,8 +1,8 @@
+// handle authorization and main UI interactions
 import { auth, provider, realTimeDb } from "./firebase.js";
 import { signInWithPopup, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 import { ref, set, get, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
 
-// DOM Elements
 const authContainer = document.getElementById("auth-container");
 const mainContent = document.getElementById("main-content");
 const googleSignInBtns = document.querySelectorAll(".google-signin-btn");
@@ -20,14 +20,14 @@ const messageContainer = document.getElementById("message-container");
 const messageContainerSignup = document.getElementById("message-container-signup");
 const signOutButton = document.getElementById("signout-btn");
 const addTBtn = document.getElementById("addsubmitBtn");
-// Handle Google Sign-In
+
 googleSignInBtns.forEach(btn => {
     btn.addEventListener("click", () => {
         signInWithPopup(auth, provider)
             .then((result) => {
                 const user = result.user;
                 displayMessage(messageContainer, `Welcome, ${user.displayName}!`, 'success');
-                saveUserDataToDb(user); // Save user to Realtime Database
+                saveUserDataToDb(user); 
             })
             .catch((error) => {
                 console.error(error);
@@ -36,7 +36,6 @@ googleSignInBtns.forEach(btn => {
     });
 });
 
-// Handle Email/Password Login
 loginBtn.addEventListener("click", () => {
     const email = emailInput.value;
     const password = passwordInput.value;
@@ -62,7 +61,6 @@ loginBtn.addEventListener("click", () => {
         });
 });
 
-// Handle Email/Password Signup
 signupBtn.addEventListener("click", async () => {
     const email = signupEmailInput.value;
     const password = signupPasswordInput.value;
@@ -82,7 +80,6 @@ signupBtn.addEventListener("click", async () => {
         const user = userCredential.user;
         displayMessage(messageContainerSignup, `Account created! Welcome, ${user.email}!`, 'success');
 
-        // Save user data to Firebase Realtime Database
         saveUserDataToDb(user);
     } catch (error) {
         console.error(error);
@@ -90,10 +87,8 @@ signupBtn.addEventListener("click", async () => {
     }
 });
 
-// Function to save user data to Firebase Realtime Database
 function saveUserDataToDb(user) {
     const userRef = ref(realTimeDb, `users/${user.uid}`);
-
 
     onValue(userRef, (snapshot) => {
         if (!snapshot.exists()) {
@@ -102,14 +97,14 @@ function saveUserDataToDb(user) {
                 user_account: {
                     cash: 0,
                     bank: 0
-                }, // Default account types
+                }, 
                 user_shop_category: [
                     "Rent", "EMI", "Groceries", "Utility bills", "Education expenses",
                     "Transportation", "Health insurance", "Medical expenses", "Household maintenance",
                     "Internet bills", "Mobile bills", "Entertainment", "Recreation", "Dining out",
                     "Savings", "Investments", "Loan repayments", "Clothing", "Festivals", "Celebrations",
                     "Gifts", "Donations", "Travel", "Vacations", "Childcare expenses", "Emergency fund contributions"
-                ], // Default categories
+                ], 
 
             })
                 .then(() => {
@@ -124,8 +119,6 @@ function saveUserDataToDb(user) {
     });
 }
 
-
-// Toggle between Login and Signup forms
 showSignup.addEventListener("click", () => {
     emailLoginContainer.style.display = "none";
     signupContainer.style.display = "block";
@@ -138,18 +131,16 @@ showLogin.addEventListener("click", () => {
     clearMessage(messageContainerSignup);
 });
 
-// Monitor Authentication State
 onAuthStateChanged(auth, (user) => {
     if (user) {
         authContainer.style.display = "none";
         mainContent.style.display = "flex";
 
-        // Listen for real-time changes in the user's data
         const userRef = ref(realTimeDb, `users/${user.uid}`);
         onValue(userRef, (snapshot) => {
             const userData = snapshot.val();
             console.log("Real-time user data:", userData);
-            // Update UI or perform actions based on real-time changes
+
         });
 
         initializeTransactionHistory();
@@ -161,34 +152,33 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-// Display Message in the message container
 function displayMessage(container, message, type) {
     container.textContent = message;
     container.style.color = type === 'success' ? 'rgb(250, 240, 221)' : 'rgb(250, 240, 221)';
     container.style.fontWeight = 'bold';
 }
 
-// Clear messages
 function clearMessage(container) {
     container.textContent = '';
 }
 
-// Sign out the user
-signOutButton.addEventListener("click", () => {
-    signOut(auth)
-        .then(() => {
-            console.log("User signed out!");
-            window.location.reload();
-        })
-        .catch((error) => {
-            console.error("Error signing out: ", error);
+document.querySelectorAll("#signout-btn, #mobile-signout-btn").forEach(btn => {
+    if (btn) {
+        btn.addEventListener("click", () => {
+            signOut(auth)
+                .then(() => {
+                    console.log("User signed out!");
+                    window.location.reload();
+                })
+                .catch((error) => {
+                    console.error("Error signing out: ", error);
+                });
         });
+    }
 });
-
 
 document.documentElement.style.setProperty('--box-count', document.querySelectorAll('.content-box').length);
 
-// Theme Toggle Logic
 const themeBtns = document.querySelectorAll('#theme-toggle-btn, #mobile-theme-toggle');
 if (themeBtns.length > 0) {
     const savedTheme = localStorage.getItem('kharchawise_theme') || 'light';
@@ -239,14 +229,12 @@ if (themeBtns.length > 0) {
     }
 }
 
-// Set Current Date Display
 const dateDisplay = document.getElementById('current-date-display');
 if (dateDisplay) {
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     dateDisplay.textContent = new Date().toLocaleDateString(undefined, options);
 }
 
-// add
 document.getElementById('addNewBtn').addEventListener('click', function () {
     document.getElementById('addTransactionModal').style.display = 'block';
 });
@@ -255,14 +243,11 @@ document.querySelector('#addTransactionModal .close-modal').addEventListener('cl
     document.getElementById('addTransactionModal').style.display = 'none';
 });
 
-
-
 function populateExpenseCategories(user) {
     const categoryDropdown = document.getElementById('expenseCategory');
 
     const userRef = ref(realTimeDb, `users/${user.uid}/user_shop_category`);
     onValue(userRef, (snapshot) => {
-
 
         if (snapshot.exists()) {
             const categories = snapshot.val();
@@ -287,7 +272,6 @@ function populateAccountOptions(user) {
             accountDropdown.innerHTML = "";
             toAccountDropdown.innerHTML = "";
 
-
             Object.entries(accounts).forEach(([account, balance]) => {
                 const formattedText = `${account.charAt(0).toUpperCase() + account.slice(1)} (₹${balance})`;
 
@@ -304,9 +288,6 @@ function populateAccountOptions(user) {
     });
 }
 
-
-
-
 onAuthStateChanged(auth, (user) => {
     if (user) {
         populateExpenseCategories(user);
@@ -315,8 +296,6 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-
-// Calculator logic
 const numberInput = document.getElementById('numberInput');
 const calcButtons = document.querySelectorAll('.calc-btn');
 let firstValue = '';
@@ -365,8 +344,6 @@ function operate(a, b, operator) {
     }
 }
 
-
-// Date field setup
 function getCurrentDateInIST() {
     const now = new Date();
 
@@ -380,11 +357,9 @@ function getCurrentDateInIST() {
 
 document.getElementById('dateField').value = getCurrentDateInIST();
 
-// Transaction type logic
 let selectedOption = 'Expense';
 document.getElementById('expenseBtn').classList.add('active');
 
-// Define the selectOption function in the MainContent scope
 function selectOption(option) {
     selectedOption = option;
 
@@ -407,15 +382,11 @@ function selectOption(option) {
     }
 }
 
-
 document.getElementById('expenseBtn').onclick = () => selectOption('Expense');
 document.getElementById('incomeBtn').onclick = () => selectOption('Income');
 document.getElementById('transferBtn').onclick = () => selectOption('Transfer');
 
-
 selectOption('Expense');
-
-//log data into user_transaction
 
 addTBtn.addEventListener("click", async () => {
     const user = auth.currentUser;
@@ -440,7 +411,6 @@ addTBtn.addEventListener("click", async () => {
         const userId = user.uid;
         const transactionRef = ref(realTimeDb, `user_transaction/${userId}`);
 
-        // Generate a unique transaction ID using timestamp
         const transactionId = Date.now().toString();
 
         let transactionData = {
@@ -458,10 +428,8 @@ addTBtn.addEventListener("click", async () => {
             transactionData.to_account = toAccount;
         }
 
-        // Store the transaction using the unique ID
         await set(ref(realTimeDb, `user_transaction/${userId}/${transactionId}`), transactionData);
 
-        // Update balances
         await updateAccountBalance(userId, fromAccount, amount, selectedOption);
 
         if (selectedOption === "Transfer") {
@@ -482,7 +450,6 @@ async function updateAccountBalance(userId, account, amount, transactionType) {
     const snapshot = await get(accountRef);
     let currentBalances = snapshot.exists() ? snapshot.val() : {};
 
-
     let currentBalance = currentBalances[account] || 0;
 
     if (transactionType === "Expense" || transactionType === "Transfer") {
@@ -491,12 +458,10 @@ async function updateAccountBalance(userId, account, amount, transactionType) {
         currentBalance += amount;
     }
 
-
     await update(accountRef, { [account]: currentBalance });
 
     console.log(`Updated balance for ${account}: ${currentBalance}`);
 }
-
 
 function clearForm() {
     document.getElementById('numberInput').value = '';
@@ -504,8 +469,6 @@ function clearForm() {
     document.getElementById('addTransactionModal').style.display = 'none';
 }
 
-
-//fetch balance
 function updateBalanceDisplay(user) {
     const totalBalanceElement = document.querySelector('.total-balance');
     const accountListElement = document.querySelector('.account-list');
@@ -516,11 +479,9 @@ function updateBalanceDisplay(user) {
         if (snapshot.exists()) {
             const accounts = snapshot.val();
 
-            // Calculate total balance
             const totalBalance = Object.values(accounts).reduce((sum, balance) => sum + balance, 0);
             totalBalanceElement.textContent = `₹${totalBalance}`;
 
-            // Clear list and add 2-column header + scroll wrapper
             accountListElement.innerHTML = `
                 <div style="display: flex; justify-content: space-between; padding: 0 10px 8px; margin-bottom: 5px; border-bottom: 1px solid var(--border-glass); color: var(--text-muted); font-size: 0.85rem; font-weight: 600; text-transform: uppercase;">
                     <span></span>
@@ -530,7 +491,6 @@ function updateBalanceDisplay(user) {
             `;
             const wrapper = document.getElementById('accountsScrollWrapper');
 
-            // Add individual account balances
             Object.entries(accounts).forEach(([accountName, balance]) => {
                 const accountItem = document.createElement('div');
                 accountItem.className = 'list-item glassmorphism';
@@ -548,12 +508,9 @@ function updateBalanceDisplay(user) {
     });
 }
 
-
-
 const balanceContainer = document.querySelector('.balance-container');
 const accountList = document.querySelector('.account-list');
 const navButtons = document.querySelectorAll('.nav-btn');
-
 
 navButtons.forEach(button => {
     button.addEventListener('click', () => {
@@ -561,7 +518,6 @@ navButtons.forEach(button => {
         navButtons.forEach(btn => btn.classList.remove('active'));
 
         button.classList.add('active');
-
 
         if (button.dataset.frame === 'accounts') {
             balanceContainer.style.transform = 'translateX(-100%)';
@@ -572,10 +528,6 @@ navButtons.forEach(button => {
         }
     });
 });
-
-
-
-//transaction history
 
 let currentPage = 1;
 const transactionsPerPage = 6;
@@ -629,7 +581,13 @@ function loadTransactions() {
                 });
             });
 
-            transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+            transactions.sort((a, b) => {
+                const dateDiff = new Date(b.date) - new Date(a.date);
+                if (dateDiff === 0) {
+                    return b.id - a.id;
+                }
+                return dateDiff;
+            });
             allTransactions = transactions;
 
             const categoryFilter = document.getElementById('categoryFilter');
@@ -661,7 +619,6 @@ function displayTransactions(transactions) {
     const endIndex = startIndex + transactionsPerPage;
     const currentTransactions = transactions.slice(startIndex, endIndex);
 
-    // Create table view for larger screens
     const tableView = document.createElement('div');
     tableView.className = 'transaction-table-wrapper';
     tableView.innerHTML = `
@@ -709,7 +666,6 @@ function displayTransactions(transactions) {
         </table>
     `;
 
-    // Create card view for mobile screens
     const cardView = document.createElement('div');
     cardView.className = 'transaction-cards';
 
@@ -781,11 +737,9 @@ function changePage(step) {
     applyFilters();
 }
 
-
 window.deleteTransaction = async function (transactionId) {
     const user = auth.currentUser;
     if (!user) return;
-
 
     const transactionRef = ref(realTimeDb, `user_transaction/${user.uid}/${transactionId}`);
 
@@ -826,7 +780,6 @@ window.deleteTransaction = async function (transactionId) {
                     );
                 }
 
-
                 await remove(transactionRef);
                 alert("Transaction deleted successfully!");
                 loadTransactions();
@@ -839,8 +792,6 @@ window.deleteTransaction = async function (transactionId) {
         alert("Failed to delete transaction. Please try again.");
     }
 };
-
-
 
 document.addEventListener('DOMContentLoaded', function () {
     const modals = document.querySelectorAll('.modal');
@@ -870,27 +821,18 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-
-
-
-
-
-
-// More Options Modal Functionality
 function initializeMoreOptions() {
-    // Set default dates
+
     const today = new Date();
     const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
     document.getElementById('startDate').value = firstDayOfMonth.toISOString().split('T')[0];
     document.getElementById('endDate').value = today.toISOString().split('T')[0];
 
-    // Initialize event listeners
     document.getElementById('addExpenseTypeBtn').addEventListener('click', addNewExpenseType);
     document.getElementById('addAccountBtn').addEventListener('click', addNewAccount);
     document.getElementById('exportCSVBtn').addEventListener('click', exportTransactions);
 
-    // Load existing data
     loadExpenseTypes();
     loadAccounts();
 }
@@ -1041,7 +983,6 @@ window.deleteAccount = async function (account) {
     }
 }
 
-
 async function exportTransactions() {
     const user = auth.currentUser;
     if (!user) return;
@@ -1068,7 +1009,6 @@ async function exportTransactions() {
             return;
         }
 
-        // Convert to CSV
         const headers = ['Date', 'Type', 'Amount', 'From Account', 'To/Category', 'Description'];
         const csvContent = [
             headers.join(','),
@@ -1082,7 +1022,6 @@ async function exportTransactions() {
             ].join(','))
         ].join('\n');
 
-        // Download CSV
         const blob = new Blob([csvContent], { type: 'text/csv' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -1098,14 +1037,10 @@ async function exportTransactions() {
     }
 }
 
-
 document.querySelector('[data-modal="more"]').addEventListener('click', initializeMoreOptions);
-
-
 
 let pieChart = null;
 let barChart = null;
-
 
 function initializeAnalysis() {
 
@@ -1125,7 +1060,6 @@ function initializeAnalysis() {
     });
 
     document.getElementById('pieChartMonth').value = new Date().getMonth();
-
 
     createPieChart();
     createBarChart();
@@ -1168,7 +1102,6 @@ async function updatePieChart() {
         const labels = Array.from(categoryMap.keys());
         const data = Array.from(categoryMap.values());
 
-        // Generate colors based on the number of categories
         const colors = getColorArray(labels.length);
 
         pieChart.data.labels = labels;
@@ -1235,7 +1168,7 @@ function generateRandomColor() {
 }
 
 function getColorArray(count) {
-    // Generate an array of distinct random colors
+
     const colors = new Set();
     while (colors.size < count) {
         colors.add(generateRandomColor());
@@ -1268,7 +1201,6 @@ function createPieChart() {
         }
     });
 }
-
 
 function createBarChart() {
     const ctx = document.getElementById('incomeExpenseChart').getContext('2d');
@@ -1316,7 +1248,6 @@ function createBarChart() {
     });
 }
 
-// Initialize when analyze modal is opened
 document.querySelector('[data-modal="analyze"]').addEventListener('click', function () {
     if (!pieChart || !barChart) {
         initializeAnalysis();
@@ -1325,25 +1256,18 @@ document.querySelector('[data-modal="analyze"]').addEventListener('click', funct
     updateBarChart();
 });
 
-
-
-//budgeting
-
-// Function to populate budget categories
 function populateBudgetCategories() {
     const user = auth.currentUser;
     if (!user) return;
 
     const budgetCategorySelect = document.getElementById('budgetCategory');
-    budgetCategorySelect.innerHTML = ''; // Clear existing options
+    budgetCategorySelect.innerHTML = ''; 
 
-    // Add "All" option first
     const allOption = document.createElement('option');
     allOption.value = 'all';
     allOption.textContent = 'All Categories';
     budgetCategorySelect.appendChild(allOption);
 
-    // Fetch and add user categories
     const categoriesRef = ref(realTimeDb, `users/${user.uid}/user_shop_category`);
     onValue(categoriesRef, (snapshot) => {
         if (snapshot.exists()) {
@@ -1358,7 +1282,6 @@ function populateBudgetCategories() {
     });
 }
 
-// Function to set new budget
 async function setBudget() {
     const user = auth.currentUser;
     if (!user) {
@@ -1370,7 +1293,6 @@ async function setBudget() {
     const amount = parseFloat(document.getElementById('budgetAmount').value);
     const monthSelection = document.getElementById('budgetMonth').value;
 
-    // Validation
     if (!category || !amount || amount <= 0) {
         alert('Please select a category and enter a valid amount');
         return;
@@ -1380,22 +1302,19 @@ async function setBudget() {
         const budgetRef = ref(realTimeDb, `user_budget/${user.uid}`);
         const currentYear = new Date().getFullYear();
 
-        // Determine active months
         let activeMonths;
         if (monthSelection === 'all') {
-            activeMonths = Array.from({ length: 12 }, (_, i) => i.toString()); // 0-11 for all months
+            activeMonths = Array.from({ length: 12 }, (_, i) => i.toString()); 
         } else {
             activeMonths = [monthSelection];
         }
 
-        // Create budget data structure
         const budgetData = {
             amount: amount,
             active_months: activeMonths,
             year: currentYear
         };
 
-        // Update the budget in Firebase
         const updates = {};
         updates[`${category}`] = budgetData;
 
@@ -1411,23 +1330,17 @@ async function setBudget() {
     }
 }
 
-// Initialize budget management
 function initializeBudgetManagement() {
 
     document.querySelector('[data-modal="budget"]').addEventListener('click', () => {
         populateBudgetCategories();
     });
 
-
     document.getElementById('setBudgetBtn').addEventListener('click', setBudget);
 }
 
-
 document.addEventListener('DOMContentLoaded', initializeBudgetManagement);
 
-
-
-// Function to display current budgets based on selected month
 function displayCurrentBudgets() {
     const user = auth.currentUser;
     if (!user) return;
@@ -1484,8 +1397,6 @@ function displayCurrentBudgets() {
     });
 }
 
-
-// Modified delete function
 async function deleteBudget(category, month) {
     const user = auth.currentUser;
     if (!user) return;
@@ -1508,7 +1419,6 @@ async function deleteBudget(category, month) {
 
                 let activeMonths = budgetData.active_months;
 
-
                 activeMonths = activeMonths.filter(m => m !== month);
 
                 if (activeMonths.length === 0) {
@@ -1522,7 +1432,6 @@ async function deleteBudget(category, month) {
                 }
             }
 
-
             displayCurrentBudgets();
         }
     } catch (error) {
@@ -1531,18 +1440,13 @@ async function deleteBudget(category, month) {
     }
 }
 
-
-
-
 function initializeCurrentBudgets() {
 
     const currentMonth = new Date().getMonth().toString();
     const currentBudgetMonth = document.getElementById('currentBudgetMonth');
     currentBudgetMonth.value = currentMonth;
 
-
     currentBudgetMonth.addEventListener('change', displayCurrentBudgets);
-
 
     displayCurrentBudgets();
 }
@@ -1550,16 +1454,12 @@ document.querySelector('[data-modal="budget"]').addEventListener('click', () => 
     initializeCurrentBudgets();
 });
 
-
-
-
 let budgetChart = null;
 
 function initializeBudgetAnalysis() {
-    // Create initial chart
+
     createBudgetChart();
 
-    // Set current year in year dropdown
     const yearDropdown = document.getElementById('budgetAnalysisYear');
     const currentYear = new Date().getFullYear();
     for (let year = currentYear; year >= currentYear - 4; year--) {
@@ -1569,11 +1469,9 @@ function initializeBudgetAnalysis() {
         yearDropdown.appendChild(option);
     }
 
-    // Add event listeners
     document.getElementById('budgetAnalysisMonth').addEventListener('change', updateBudgetAnalysis);
     document.getElementById('budgetAnalysisYear').addEventListener('change', updateBudgetAnalysis);
 
-    // Initial update
     updateBudgetAnalysis();
 }
 
@@ -1619,18 +1517,16 @@ async function updateBudgetAnalysis() {
     const selectedYear = parseInt(document.getElementById('budgetAnalysisYear').value);
 
     try {
-        // Get budgets
+
         const budgetRef = ref(realTimeDb, `user_budget/${user.uid}`);
         const budgetSnapshot = await get(budgetRef);
 
-        // Get transactions
         const transactionRef = ref(realTimeDb, `user_transaction/${user.uid}`);
         const transactionSnapshot = await get(transactionRef);
 
         let budgetData = {};
         let expenseData = {};
 
-        // Process budgets
         if (budgetSnapshot.exists()) {
             const budgets = budgetSnapshot.val();
             Object.entries(budgets).forEach(([category, budget]) => {
@@ -1641,11 +1537,9 @@ async function updateBudgetAnalysis() {
             });
         }
 
-        // Process expenses
         if (transactionSnapshot.exists()) {
             const transactions = transactionSnapshot.val();
 
-            // Calculate total expenses for all categories first
             let totalExpenses = 0;
 
             Object.values(transactions).forEach(transaction => {
@@ -1656,10 +1550,9 @@ async function updateBudgetAnalysis() {
 
                     if (transactionYear === selectedYear &&
                         (selectedMonth === 'all' || transactionMonth === selectedMonth)) {
-                        // Add to total expenses
+
                         totalExpenses += transaction.amount;
 
-                        // Add to category-specific expenses if budget exists for that category
                         if (budgetData.hasOwnProperty(transaction.expense_category)) {
                             expenseData[transaction.expense_category] =
                                 (expenseData[transaction.expense_category] || 0) + transaction.amount;
@@ -1668,12 +1561,10 @@ async function updateBudgetAnalysis() {
                 }
             });
 
-
             if (budgetData.hasOwnProperty('all')) {
                 expenseData['all'] = totalExpenses;
             }
         }
-
 
         const labels = Object.keys(budgetData);
         const budgetAmounts = labels.map(category => budgetData[category]);
@@ -1689,8 +1580,6 @@ async function updateBudgetAnalysis() {
     }
 }
 
-
-// Initialize when budget modal is opened
 document.querySelector('[data-modal="budget"]').addEventListener('click', () => {
     if (!budgetChart) {
         initializeBudgetAnalysis();
