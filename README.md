@@ -2,7 +2,7 @@
 
 A modern, highly responsive Personal Finance tracking application. Built with vanilla HTML, CSS, JS, and powered by Firebase Realtime Database. Features a premium "Glassmorphism" design system that elegantly morphs from a Bottom-Nav mobile app view into a professional Sidebar Dashboard on laptops and desktop screens.
 
-## 🚀 Stunning Features
+##  eatures
 
 1. **Premium FinTech Design**
    - Translucent Glassmorphism cards with smooth blur filters.
@@ -32,14 +32,14 @@ A modern, highly responsive Personal Finance tracking application. Built with va
    - Secure Google Single Sign-On (SSO) alongside standard Email/Password Auth.
    - All transactions, budgets, account strings, and custom categories are saved permanently.
 
-## 💻 Tech Stack
+##  Tech Stack
 - HTML5 (Semantic Structure)
 - Modern CSS3 (Grid, Flexbox, Variable-driven Theming, Media Queries)
 - Vanilla Javascript ES6 (Modular `type="module"` execution)
 - Firebase Auth & Realtime Database
 - Chart.js
 
-## ⚙️ How to Run
+##  How to Run
 Due to ES6 Modules and CORS cross-origin policies for fetching external `https://` Firebase modules, **you must use a local web server to run this app.**
 
 ### Option A: VS Code Live Server (Recommended)
