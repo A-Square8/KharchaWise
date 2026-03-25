@@ -1,84 +1,56 @@
-# KharchaWise
+# KharchaWise Finance Tracker
 
-KharchaWise is a **minimalist finance tracking application** designed to help users manage their **expenses, income, and transfers** efficiently. The application integrates **Google Firebase** for secure user authentication and transaction storage.
+A modern, highly responsive Personal Finance tracking application. Built with vanilla HTML, CSS, JS, and powered by Firebase Realtime Database. Features a premium "Glassmorphism" design system that elegantly morphs from a Bottom-Nav mobile app view into a professional Sidebar Dashboard on laptops and desktop screens.
 
-## Features
-- **Expense Tracking:** Log and categorize expenses.
-- **Income Tracking:** Record sources of income.
-- **Transfers:** Track money transfers between accounts.
-- **User Authentication:** Secure login and registration using Firebase.
-- **Minimalist UI:** Simple, clean, and user-friendly interface.
-- **Pagination:** Navigate through transaction history smoothly.
-- **Responsive Design:** Works on both desktop and mobile devices.
-- **Custom Account & Expense Category Addition:** Users can create and manage custom accounts and expense categories for better organization.
-- **Monthly Analysis (with Pictorial Representation):** Get insights into monthly spending and income trends with interactive charts.
-- **Budget Setting & Tracking:** Set budgets for different categories and track your progress visually.
+## 🚀 Stunning Features
 
-## Tech Stack
-- **Frontend:** HTML, CSS, JavaScript
-- **Backend:** Firebase (Authentication & Firestore for data storage)
-- **Tools & Libraries:** FontAwesome (icons), Chart.js (for visual analytics), Git (version control)
+1. **Premium FinTech Design**
+   - Translucent Glassmorphism cards with smooth blur filters.
+   - Dynamic, fluid animations (Slide-up Bottom Sheets for Mobile, Centered Glass Popovers for Desktop).
+   - Carefully chosen sophisticated color palettes (Deep slates, Indigo primary, Emerald success states).
 
-## Installation & Setup
-### 1. Clone the Repository
-```sh
-git clone https://github.com/your-username/kharchawise.git
-cd kharchawise
-```
+2. **Responsive Dashboard Layout**
+   - **Laptop & Desktop:** Utilizes a full-height Sidebar navigation layout (`display: flex`) with sticky widgets on the right side.
+   - **Mobile Phones:** Automatically converts the Sidebar into a sticky Bottom Navigation bar, mirroring top-tier native mobile applications.
+   - Multi-column flexible grids that adapt automatically without breaking.
 
-### 2. Set Up Firebase
-- Go to [Firebase Console](https://console.firebase.google.com/).
-- Create a project and enable Firestore Database & Authentication.
-- Get your Firebase config and update the `firebase-config.js` file:
-```js
-const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT.appspot.com",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
-};
-```
+3. **Intelligent Accounts & Balances**
+   - The Top Balance card includes a sliding interface holding all of your bank accounts.
+   - Accounts are dynamically fetched and formatted perfectly in a beautifully padded flexbox list indicating the exact institution name and current monetary holding.
 
-### 3. Run the Project
-Simply open the `index.html` file in your browser.
+4. **Advanced Transaction History Filters**
+   - Integrated dynamic dropdown category filters (syncs with categories you personally define over time).
+   - Blazing-fast real-time search filtering.
+   - Smoothly paginated datasets ensuring the UI is never overwhelmed.
 
-## Usage
-1. **Sign up or log in** using Firebase authentication.
-2. **Add transactions** (Expense, Income, or Transfer).
-3. **View, edit, or delete transactions** as needed.
-4. **Navigate through pages** with the pagination controls.
-5. **Customize Accounts & Categories** to organize finances more effectively.
-6. **Analyze monthly transactions** with interactive charts to understand spending habits.
-7. **Set budgets and track expenses** using visual progress indicators to maintain financial goals.
+5. **Integrated Analytics Suite**
+   - Interactive dual configurations for Chart.js visualizing your expenses via Doughnut and Bar graphs.
+   - Dynamic Budget trackers showing how close you are to your limits per category.
 
-## Folder Structure
-```
-KharchaWise/
-│-- index.html
-│-- styles/
-│   ├── styles.css
-│-- scripts/
-│   ├── main.js
-│   ├── firebase-config.js
-│   ├── charts.js (for data visualization)
-│-- assets/
-│   ├── icons/
-│   ├── images/
-```
+6. **Firebase Backed**
+   - Instant state syncing.
+   - Secure Google Single Sign-On (SSO) alongside standard Email/Password Auth.
+   - All transactions, budgets, account strings, and custom categories are saved permanently.
 
-## Future Improvements
-- Add advanced financial reports
-- Implement AI-based spending suggestions
-- Dark mode support
+## 💻 Tech Stack
+- HTML5 (Semantic Structure)
+- Modern CSS3 (Grid, Flexbox, Variable-driven Theming, Media Queries)
+- Vanilla Javascript ES6 (Modular `type="module"` execution)
+- Firebase Auth & Realtime Database
+- Chart.js
 
-## Contributing
-Feel free to fork the repository and submit pull requests. Contributions are welcome!
+## ⚙️ How to Run
+Due to ES6 Modules and CORS cross-origin policies for fetching external `https://` Firebase modules, **you must use a local web server to run this app.**
 
-## License
-This project is licensed under the **MIT License**.
+### Option A: VS Code Live Server (Recommended)
+1. Open the folder in VS Code.
+2. Install the `Live Server` extension.
+3. Right-click `index.html` -> "Open with Live Server".
+
+### Option B: Python Simple Server
+1. Open your terminal in this directory.
+2. Run `python3 -m http.server 8000`
+3. Visit `http://localhost:8000` in Google Chrome or any modern browser.
 
 ---
-🚀 Built with ❤️ by [A-Square8]
-
+*Built for tracking wealth seamlessly across every device format imaginable.*

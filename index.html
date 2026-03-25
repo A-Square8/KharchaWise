@@ -3,378 +3,499 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KharchaWise</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KharchaWise Finance</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <!-- Authorization -->
-    <div id="auth-container" class="centered">
+    <!-- App Background Elements -->
+    <div class="bg-shape shadow-1"></div>
+    <div class="bg-shape shadow-2"></div>
 
+    <!-- Authorization Screen -->
+    <div id="auth-container" class="auth-wrapper">
+        <div class="auth-card glassmorphism">
 
-        <div id="email-login-container">
-            <h1>KharchaWise</h1>
-            <input type="email" id="email-input" placeholder="Enter your email" required />
-            <input type="password" id="password-input" placeholder="Enter your password" required />
-            <button id="login-btn">Login</button>
-            <p>Don't have an account? <a href="#" id="show-signup">Sign Up</a></p>
-            <button id="google-signin-btn">
-                <i class="fab fa-google"></i> Sign in with Google
-            </button>
+            <div id="email-login-container" class="auth-state">
+                <div class="auth-header">
+                    <div class="brand-logo"><i class="fas fa-wallet"></i></div>
+                    <h1>KharchaWise</h1>
+                    <p>Manage your finances like a pro.</p>
+                </div>
 
+                <div class="input-modern">
+                    <i class="fas fa-envelope icon"></i>
+                    <input type="email" id="email-input" placeholder="Email Address" required />
+                </div>
+                <div class="input-modern">
+                    <i class="fas fa-lock icon"></i>
+                    <input type="password" id="password-input" placeholder="Password" required />
+                </div>
 
-            <div id="message-container"></div>
-        </div>
+                <button id="login-btn" class="btn-primary auth-action-btn">Log In</button>
+                <button class="google-signin-btn btn-secondary auth-action-btn" id="google-signin-btn">
+                    <i class="fab fa-google"></i> Continue with Google
+                </button>
 
-        <div id="signup-container" style="display: none;">
-            <h1>KharchaWise</h1>
-            <input type="email" id="signup-email" placeholder="Enter your email" required />
-            <input type="password" id="signup-password" placeholder="Enter your password" required />
-            <button id="signup-btn">Sign Up</button>
-            <p>Already have an account? <a href="#" id="show-login">Login</a></p>
-            <button id="google-signin-btn">
-                <i class="fab fa-google"></i> Sign in with Google
-            </button>
+                <p class="auth-switch">Don't have an account? <span id="show-signup">Sign Up</span></p>
+                <div id="message-container" class="auth-msg"></div>
+            </div>
 
+            <div id="signup-container" class="auth-state" style="display: none;">
+                <div class="auth-header">
+                    <div class="brand-logo"><i class="fas fa-user-plus"></i></div>
+                    <h1>Create Account</h1>
+                    <p>Start mastering your money.</p>
+                </div>
 
-            <div id="message-container-signup"></div>
+                <div class="input-modern">
+                    <i class="fas fa-envelope icon"></i>
+                    <input type="email" id="signup-email" placeholder="Email Address" required />
+                </div>
+                <div class="input-modern">
+                    <i class="fas fa-lock icon"></i>
+                    <input type="password" id="signup-password" placeholder="Create Password" required />
+                </div>
+
+                <button id="signup-btn" class="btn-primary auth-action-btn">Sign Up</button>
+                <button class="google-signin-btn btn-secondary auth-action-btn" id="google-signin-btn-signup">
+                    <i class="fab fa-google"></i> Sign Up with Google
+                </button>
+
+                <p class="auth-switch">Already have an account? <span id="show-login">Log In</span></p>
+                <div id="message-container-signup" class="auth-msg"></div>
+            </div>
         </div>
     </div>
 
+    <!-- Main App UI -->
+    <main id="main-content" class="app-layout" style="display: none;">
 
-
-    <!-- Main -->
-
-    <main id="main-content">
-        <div id="navbar">
-            <div id="logo">KharchaWise</div>
-            <button id="signout-btn">
-                <i class="fas fa-sign-out-alt"></i>
-            </button>
-        </div>
-
-        <div id="main">
-            <div class="content-box">
-                <div class="balance-container">
-                    <div class="total-balance">Total Balance: ₹0</div>
-                </div>
-                <div class="account-list"></div>
-                <div class="nav-buttons">
-                    <button class="nav-btn active" data-frame="balance"></button>
-                    <button class="nav-btn" data-frame="accounts"></button>
-                </div>
+        <!-- Sidebar (Desktop) / Bottom Nav (Mobile) -->
+        <nav class="app-nav glassmorphism">
+            <div class="nav-brand">
+                <i class="fas fa-wallet"></i> <span class="brand-name">KharchaWise</span>
             </div>
-            <div class="content-box"><button id="addNewBtn" class="on-btn">Add New</button></div>
-            <div class="content-box">
-                <div class="analysis-buttons">
-                    <button class="analysis-btn" data-modal="analyze">
-                        <span class="btn-text">Analyze</span>
-                        <i class="fas fa-chart-bar btn-icon"></i>
-                    </button>
-                    <button class="analysis-btn" data-modal="budget">
-                        <span class="btn-text">Budget</span>
-                        <i class="fas fa-wallet btn-icon"></i>
-                    </button>
-                    <button class="analysis-btn" data-modal="more">
-                        <span class="btn-text">More</span>
-                        <i class="fas fa-ellipsis-h btn-icon"></i>
+
+            <ul class="nav-menu">
+                <li class="nav-item active">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-home"></i> <span class="nav-label">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link analysis-btn" data-modal="analyze">
+                        <i class="fas fa-chart-pie"></i> <span class="nav-label">Analyze</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link analysis-btn" data-modal="budget">
+                        <i class="fas fa-chart-line"></i> <span class="nav-label">Budgets</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link analysis-btn" data-modal="more">
+                        <i class="fas fa-cog"></i> <span class="nav-label">Settings</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="nav-footer">
+                <button id="theme-toggle-btn" class="nav-icon-btn" title="Toggle Theme">
+                    <i class="fas fa-moon"></i> <span class="nav-label">Theme</span>
+                </button>
+                <button id="signout-btn" class="nav-icon-btn" title="Sign Out">
+                    <i class="fas fa-sign-out-alt"></i> <span class="nav-label">Log Out</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <div class="app-content-area">
+
+            <header class="app-header">
+                <div class="header-titles">
+                    <h2>Overview</h2>
+                    <p class="subtitle" id="current-date-display">Welcome back</p>
+                </div>
+                <div class="header-actions mobile-only">
+                    <button id="mobile-theme-toggle" class="app-icon-btn" title="Toggle Theme">
+                        <i class="fas fa-moon"></i>
                     </button>
                 </div>
-            </div>
-            <div class="content-box">
-                <div class="transaction-table-container">
-                    <h3>Account History</h3>
-                    <div class="transaction-list">
-                        <div id="transactionsList"></div>
+            </header>
+
+            <div class="dashboard-grid">
+
+                <!-- Left Column / Top Section -->
+                <div class="dash-col main-col content-box">
+
+                    <!-- Balance Card -->
+                    <div class="balance-card-wrapper glassmorphism">
+                        <div class="balance-slider">
+                            <div class="balance-container slider-pane">
+                                <p class="card-subtitle">Total Net Worth</p>
+                                <h1 class="total-balance">₹0</h1>
+                            </div>
+                            <div class="account-list slider-pane" style="transform: translateX(100%);">
+                                <!-- Accounts load here -->
+                            </div>
+                        </div>
+                        <div class="slider-controls">
+                            <button class="nav-btn active" data-frame="balance"></button>
+                            <button class="nav-btn" data-frame="accounts"></button>
+                        </div>
                     </div>
-                    <div class="pagination-controls">
-                        <button id="prevPage" class="pagination-btn">&lt;</button>
-                        <span id="pageIndicator">Page 1</span>
-                        <button id="nextPage" class="pagination-btn">&gt;</button>
-                    </div>
-                </div>
 
-            </div>
-
-
-        </div>
-
-
-
-
-        <!-- Modal containers -->
-        <div id="analyzeModal" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>Analysis</h2>
-                    <span class="close-modal">&times;</span>
-                </div>
-                <div class="modal-body">
-                    <div class="analysis-container">
-                        <!-- Pie Chart Section -->
-                        <div class="chart-section">
-                            <h3>Monthly Expenses by Category</h3>
-                            <div class="date-selector">
-                                <select id="pieChartMonth">
-                                    <option value="0">January</option>
-                                    <option value="1">February</option>
-                                    <option value="2">March</option>
-                                    <option value="3">April</option>
-                                    <option value="4">May</option>
-                                    <option value="5">June</option>
-                                    <option value="6">July</option>
-                                    <option value="7">August</option>
-                                    <option value="8">September</option>
-                                    <option value="9">October</option>
-                                    <option value="10">November</option>
-                                    <option value="11">December</option>
+                    <!-- History Section -->
+                    <div class="history-section full-card glassmorphism transaction-table-container">
+                        <div class="history-header">
+                            <h3>Transaction History</h3>
+                            <div class="history-filters flex-row gap-half mb-3">
+                                <div class="search-box flex-2">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" id="searchInput" placeholder="Search..." />
+                                </div>
+                                <select id="typeFilter" class="modern-select flex-1">
+                                    <option value="All">All Types</option>
+                                    <option value="Expense">Expense</option>
+                                    <option value="Income">Income</option>
+                                    <option value="Transfer">Transfer</option>
                                 </select>
-                                <select id="pieChartYear"></select>
-                            </div>
-                            <div class="chart-container">
-                                <canvas id="expensePieChart"></canvas>
-                            </div>
-                            <div class="total-display">
-                                <p>Total Expenses: ₹<span id="totalExpenses">0</span></p>
+                                <select id="categoryFilter" class="modern-select flex-1">
+                                    <option value="All">All Categories</option>
+                                </select>
                             </div>
                         </div>
 
-                        <!-- Bar Chart Section -->
-                        <div class="chart-section">
-                            <h3>Income vs Expenses (Monthly)</h3>
-                            <div class="date-selector">
-                                <select id="barChartYear"></select>
-                            </div>
-                            <div class="chart-container">
-                                <canvas id="incomeExpenseChart"></canvas>
-                            </div>
-                            <div class="total-display">
-                                <p>Total Income: ₹<span id="totalIncome">0</span></p>
-                                <p>Total Expense: ₹<span id="totalExpense">0</span></p>
-                            </div>
+                        <div class="transaction-list-wrapper">
+                            <div id="transactionsList" class="transaction-list"></div>
+                        </div>
+
+                        <div class="pagination-controls">
+                            <button id="prevPage" class="app-icon-btn"><i class="fas fa-chevron-left"></i></button>
+                            <span id="pageIndicator" class="page-badge">Page 1</span>
+                            <button id="nextPage" class="app-icon-btn"><i class="fas fa-chevron-right"></i></button>
                         </div>
                     </div>
+
+                </div>
+
+                <!-- Right Column / Bottom Section (Widgets) -->
+                <div class="dash-col side-col">
+
+                    <div class="widget-card glassmorphism">
+                        <div class="widget-header">
+                            <h3>Quick Actions</h3>
+                        </div>
+                        <!-- We simulate clicking the invisible original nav buttons using this -->
+                        <div class="quick-action-grid">
+                            <button class="quick-action-item analysis-btn" data-modal="analyze">
+                                <div class="qa-icon"
+                                    style="background: rgba(99, 102, 241, 0.1); color: var(--primary);"><i
+                                        class="fas fa-chart-pie"></i></div>
+                                <span>Analytics</span>
+                            </button>
+                            <button class="quick-action-item analysis-btn" data-modal="budget">
+                                <div class="qa-icon"
+                                    style="background: rgba(16, 185, 129, 0.1); color: var(--success);"><i
+                                        class="fas fa-wallet"></i></div>
+                                <span>Budgets</span>
+                            </button>
+                            <button class="quick-action-item analysis-btn" data-modal="more">
+                                <div class="qa-icon"
+                                    style="background: rgba(245, 158, 11, 0.1); color: var(--warning);"><i
+                                        class="fas fa-cogs"></i></div>
+                                <span>Settings</span>
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
             </div>
+
         </div>
 
-        <div id="addTransactionModal" class="modal">
-            <div class="modal-content">
+        <!-- Floating Action Button -->
+        <button id="addNewBtn" class="fab shadow-glow">
+            <i class="fas fa-plus"></i>
+        </button>
+
+        <div id="addTransactionModal" class="modal app-modal">
+            <div class="modal-content glassmorphism bottom-sheet">
+                <div class="modal-drag-handle mobile-only"></div>
                 <div class="modal-header">
-                    <h2>Add New Transaction</h2>
-                    <span class="close-modal">&times;</span>
+                    <h2>New Transaction</h2>
+                    <button class="close-modal app-icon-btn"><i class="fas fa-times"></i></button>
                 </div>
+
                 <div class="modal-body">
-                    <div class="input-group-add" style="width: 100%;justify-content: space-around;">
-                        <button class="on-btn" id="expenseBtn" data-value="Expense"
-                            onclick="selectOption('Expense')">EXPENSE</button>
-                        <button class="on-btn" id="incomeBtn" data-value="Income"
-                            onclick="selectOption('Income')">INCOME</button>
-                        <button class="on-btn" id="transferBtn" data-value="Transfer"
-                            onclick="selectOption('Transfer')">TRANSFER</button>
+                    <div class="type-selector">
+                        <button class="type-btn" id="expenseBtn" data-value="Expense"
+                            onclick="selectOption('Expense')">Expense</button>
+                        <button class="type-btn" id="incomeBtn" data-value="Income"
+                            onclick="selectOption('Income')">Income</button>
+                        <button class="type-btn" id="transferBtn" data-value="Transfer"
+                            onclick="selectOption('Transfer')">Transfer</button>
                     </div>
 
-                    <div class="input-group-add" style="flex-direction: column;">
-                        <label for="account">Account</label>
-                        <select id="account">
-                            <option value="" disabled selected>Select an account </option>
-                        </select>
+                    <div class="form-grid">
+                        <div class="input-modern select-wrapper">
+                            <i class="fas fa-university icon"></i>
+                            <select id="account">
+                                <option value="" disabled selected>From Account</option>
+                            </select>
+                        </div>
+
+                        <div id="toAccountGroup" class="input-modern select-wrapper">
+                            <i class="fas fa-exchange-alt icon"></i>
+                            <select id="toAccount">
+                                <option value="" disabled selected>To Account</option>
+                            </select>
+                        </div>
+
+                        <div id="expenseCategoryGroup" class="input-modern select-wrapper">
+                            <i class="fas fa-tag icon"></i>
+                            <select id="expenseCategory">
+                                <option value="" disabled selected>Category</option>
+                            </select>
+                        </div>
+
+                        <div class="input-modern">
+                            <i class="fas fa-calendar icon"></i>
+                            <input type="date" id="dateField">
+                        </div>
+
+                        <div class="input-modern textarea-wrapper full-width">
+                            <i class="fas fa-align-left icon"></i>
+                            <textarea id="description" rows="2" placeholder="Note / Description"></textarea>
+                        </div>
                     </div>
 
-                    <div id="toAccountGroup" class="input-group-add" style="flex-direction: column;">
-                        <label for="toAccount">To Account</label>
-                        <select id="toAccount">
-                            <option value="" disabled selected>Select an account </option>
-                        </select>
+                    <div class="amount-display full-width">
+                        <span class="currency">₹</span>
+                        <input type="text" id="numberInput" readonly placeholder="0">
                     </div>
 
-                    <div id="expenseCategoryGroup" class="input-group-add" style="flex-direction: column;">
-                        <label for="expenseCategory">Expense Category</label>
-                        <select id="expenseCategory">
-                            <option value="" disabled selected>Select a category</option>
-                        </select>
-                    </div>
-
-                    <div class="input-group-add" style="flex-direction: column; height: auto;">
-                        <label for="description">Description</label>
-                        <textarea id="description" rows="3"></textarea>
-                    </div>
-
-                    <div class="input-group-add" style="flex-direction: column;">
-                        <label for="dateField">Select a date</label>
-                        <input type="date" id="dateField"
-                            style="width: 100%;font-size: 16px;border: 1px solid maroon;border-radius: 4px;box-sizing: border-box;padding: 0.5rem;">
-                    </div>
-
-                    <div class="input-group-add">
-                        <input type="text" id="numberInput" readonly>
-                    </div>
-
-                    <div class="calculator">
+                    <div class="calculator-grid">
                         <button class="calc-btn" data-value="1">1</button>
                         <button class="calc-btn" data-value="2">2</button>
                         <button class="calc-btn" data-value="3">3</button>
-                        <button class="calc-btn" data-operation="+">+</button>
+                        <button class="calc-btn op-btn" data-operation="+"><i class="fas fa-plus"></i></button>
                         <button class="calc-btn" data-value="4">4</button>
                         <button class="calc-btn" data-value="5">5</button>
                         <button class="calc-btn" data-value="6">6</button>
-                        <button class="calc-btn" data-operation="-">-</button>
+                        <button class="calc-btn op-btn" data-operation="-"><i class="fas fa-minus"></i></button>
                         <button class="calc-btn" data-value="7">7</button>
                         <button class="calc-btn" data-value="8">8</button>
                         <button class="calc-btn" data-value="9">9</button>
-                        <button class="calc-btn" data-operation="*">*</button>
+                        <button class="calc-btn op-btn" data-operation="*"><i class="fas fa-times"></i></button>
                         <button class="calc-btn" data-value="0">0</button>
-                        <button class="calc-btn" id="clear">Clr</button>
-                        <button class="calc-btn" id="equals">=</button>
-                        <button class="calc-btn" data-operation="/">/</button>
+                        <button class="calc-btn action-clr" id="clear">C</button>
+                        <button class="calc-btn action-eq" id="equals">=</button>
+                        <button class="calc-btn op-btn" data-operation="/"><i class="fas fa-divide"></i></button>
                     </div>
-                    <button id="addsubmitBtn" class="on-btn">Submit</button>
+
+                    <button id="addsubmitBtn" class="btn-primary full-width shadow-glow">Confirm Transaction</button>
                 </div>
             </div>
         </div>
 
-
-
-        <div id="budgetModal" class="modal">
-            <div class="modal-content">
+        <!-- Analyze Modal -->
+        <div id="analyzeModal" class="modal app-modal">
+            <div class="modal-content glassmorphism bottom-sheet">
+                <div class="modal-drag-handle mobile-only"></div>
                 <div class="modal-header">
-                    <h2>Budget Management</h2>
-                    <span class="close-modal">&times;</span>
+                    <h2>Analytics</h2>
+                    <button class="close-modal app-icon-btn"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="modal-body analysis-container">
+                    <div class="chart-section widget-card">
+                        <h3><i class="fas fa-chart-pie text-primary"></i> Expenses by Category</h3>
+                        <div class="date-selector flex-row">
+                            <select id="pieChartMonth" class="modern-select">
+                                <option value="0">January</option>
+                                <option value="1">February</option>
+                                <option value="2">March</option>
+                                <option value="3">April</option>
+                                <option value="4">May</option>
+                                <option value="5">June</option>
+                                <option value="6">July</option>
+                                <option value="7">August</option>
+                                <option value="8">September</option>
+                                <option value="9">October</option>
+                                <option value="10">November</option>
+                                <option value="11">December</option>
+                            </select>
+                            <select id="pieChartYear" class="modern-select"></select>
+                        </div>
+                        <div class="chart-container"><canvas id="expensePieChart"></canvas></div>
+                        <div class="total-display glass-pill">Total: <span class="text-danger font-bold">₹<span
+                                    id="totalExpenses">0</span></span></div>
+                    </div>
+
+                    <div class="chart-section widget-card">
+                        <h3><i class="fas fa-chart-bar text-primary"></i> Income vs Expenses</h3>
+                        <div class="date-selector">
+                            <select id="barChartYear" class="modern-select"></select>
+                        </div>
+                        <div class="chart-container"><canvas id="incomeExpenseChart"></canvas></div>
+                        <div class="total-display glass-pill flex-row-around">
+                            <span>Income: <span class="text-success font-bold">₹<span
+                                        id="totalIncome">0</span></span></span>
+                            <span>Expense: <span class="text-danger font-bold">₹<span
+                                        id="totalExpense">0</span></span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Budget Modal -->
+        <div id="budgetModal" class="modal app-modal">
+            <div class="modal-content glassmorphism bottom-sheet">
+                <div class="modal-drag-handle mobile-only"></div>
+                <div class="modal-header">
+                    <h2>Budgets</h2>
+                    <button class="close-modal app-icon-btn"><i class="fas fa-times"></i></button>
                 </div>
                 <div class="modal-body">
 
-                    <div class="budget-section">
-                        <h3>Set New Budget</h3>
-                        <div class="input-group-add">
+                    <div class="widget-card mb-4">
+                        <h3>Create Budget</h3>
+                        <div class="input-modern select-wrapper mb-3">
                             <select id="budgetCategory">
-                                <option value="" disabled selected>Select Category</option>
+                                <option value="" disabled selected>Category</option>
                             </select>
-                            <select id="budgetMonth">
-                                <option value="all">Whole Year</option>
-                                <option value="0">January</option>
-                                <option value="1">February</option>
-                                <option value="2">March</option>
-                                <option value="3">April</option>
-                                <option value="4">May</option>
-                                <option value="5">June</option>
-                                <option value="6">July</option>
-                                <option value="7">August</option>
-                                <option value="8">September</option>
-                                <option value="9">October</option>
-                                <option value="10">November</option>
-                                <option value="11">December</option>
-                            </select>
-                            <input type="number" id="budgetAmount" placeholder="Enter budget amount">
-                            <button class="on-btn" id="setBudgetBtn">Set Budget</button>
                         </div>
+                        <div class="flex-row gap-half mb-3">
+                            <select id="budgetMonth" class="modern-select flex-1">
+                                <option value="all">Whole Year</option>
+                                <option value="0">Jan</option>
+                                <option value="1">Feb</option>
+                                <option value="2">Mar</option>
+                                <option value="3">Apr</option>
+                                <option value="4">May</option>
+                                <option value="5">Jun</option>
+                                <option value="6">Jul</option>
+                                <option value="7">Aug</option>
+                                <option value="8">Sep</option>
+                                <option value="9">Oct</option>
+                                <option value="10">Nov</option>
+                                <option value="11">Dec</option>
+                            </select>
+                            <div class="input-modern flex-2" style="margin:0;">
+                                <span class="currency-small">₹</span>
+                                <input type="number" id="budgetAmount" placeholder="Amount">
+                            </div>
+                        </div>
+                        <button class="btn-primary full-width" id="setBudgetBtn">Set Target</button>
                     </div>
 
-                    <div class="budget-section">
-                        <h3>Current Budgets</h3>
-                        <div class="date-selector">
-                            <select id="currentBudgetMonth">
-                                <option value="all">Whole Year</option>
-                                <option value="0">January</option>
-                                <option value="1">February</option>
-                                <option value="2">March</option>
-                                <option value="3">April</option>
-                                <option value="4">May</option>
-                                <option value="5">June</option>
-                                <option value="6">July</option>
-                                <option value="7">August</option>
-                                <option value="8">September</option>
-                                <option value="9">October</option>
-                                <option value="10">November</option>
-                                <option value="11">December</option>
-                            </select>
-                        </div>
-                        <div id="budgetList" class="list-container">
-
-                        </div>
+                    <div class="widget-card mb-4">
+                        <h3>Active Budgets</h3>
+                        <select id="currentBudgetMonth" class="modern-select full-width mb-3">
+                            <option value="all">Whole Year</option>
+                            <option value="0">Jan</option>
+                            <option value="1">Feb</option>
+                            <option value="2">Mar</option>
+                            <option value="3">Apr</option>
+                            <option value="4">May</option>
+                            <option value="5">Jun</option>
+                            <option value="6">Jul</option>
+                            <option value="7">Aug</option>
+                            <option value="8">Sep</option>
+                            <option value="9">Oct</option>
+                            <option value="10">Nov</option>
+                            <option value="11">Dec</option>
+                        </select>
+                        <div id="budgetList" class="list-container smooth-scroll"></div>
                     </div>
 
-                    <div class="budget-section">
-                        <h3>Budget Analysis</h3>
-                        <div class="date-selector">
-                            <select id="budgetAnalysisMonth">
+                    <div class="widget-card">
+                        <h3>Trend Analysis</h3>
+                        <div class="flex-row gap-half mb-3">
+                            <select id="budgetAnalysisMonth" class="modern-select flex-1">
                                 <option value="all">Whole Year</option>
-                                <option value="0">January</option>
-                                <option value="1">February</option>
-                                <option value="2">March</option>
-                                <option value="3">April</option>
+                                <option value="0">Jan</option>
+                                <option value="1">Feb</option>
+                                <option value="2">Mar</option>
+                                <option value="3">Apr</option>
                                 <option value="4">May</option>
-                                <option value="5">June</option>
-                                <option value="6">July</option>
-                                <option value="7">August</option>
-                                <option value="8">September</option>
-                                <option value="9">October</option>
-                                <option value="10">November</option>
-                                <option value="11">December</option>
+                                <option value="5">Jun</option>
+                                <option value="6">Jul</option>
+                                <option value="7">Aug</option>
+                                <option value="8">Sep</option>
+                                <option value="9">Oct</option>
+                                <option value="10">Nov</option>
+                                <option value="11">Dec</option>
                             </select>
-                            <select id="budgetAnalysisYear">
-
-                            </select>
+                            <select id="budgetAnalysisYear" class="modern-select flex-1"></select>
                         </div>
-                        <div class="budget-chart-container">
-                            <canvas id="budgetChart"></canvas>
-                        </div>
+                        <div class="budget-chart-container"><canvas id="budgetChart"></canvas></div>
                     </div>
+
                 </div>
             </div>
         </div>
 
-        <div id="moreModal" class="modal">
-            <div class="modal-content">
+        <!-- More/Settings Modal -->
+        <div id="moreModal" class="modal app-modal">
+            <div class="modal-content glassmorphism bottom-sheet">
+                <div class="modal-drag-handle mobile-only"></div>
                 <div class="modal-header">
-                    <h2>More Options</h2>
-                    <span class="close-modal">&times;</span>
+                    <h2>Settings</h2>
+                    <button class="close-modal app-icon-btn"><i class="fas fa-times"></i></button>
                 </div>
                 <div class="modal-body">
 
-                    <div class="option-section">
-                        <h3>Add New Expense Type</h3>
-                        <div class="input-group-add">
-                            <input type="text" id="newExpenseType" placeholder="Enter new expense type">
-                            <button class="on-btn" id="addExpenseTypeBtn">Add Category</button>
+                    <div class="widget-card mb-4">
+                        <h3>Manage Categories</h3>
+                        <div class="flex-row gap-half mb-3">
+                            <div class="input-modern flex-2" style="margin:0;">
+                                <input type="text" id="newExpenseType" placeholder="New Category">
+                            </div>
+                            <button class="btn-primary flex-1" id="addExpenseTypeBtn"><i
+                                    class="fas fa-plus"></i></button>
                         </div>
-                        <div id="expenseTypeList" class="list-container">
-
-                        </div>
+                        <div id="expenseTypeList" class="list-container smooth-scroll"></div>
                     </div>
 
-
-                    <div class="option-section">
-                        <h3>Add New Account</h3>
-                        <div class="input-group-add">
-                            <input type="text" id="newAccountName" placeholder="Enter account name">
-                            <input type="number" id="newAccountBalance" placeholder="Initial balance">
-                            <button class="on-btn" id="addAccountBtn">Add Account</button>
+                    <div class="widget-card mb-4">
+                        <h3>Manage Accounts</h3>
+                        <div class="flex-row gap-half mb-2">
+                            <div class="input-modern flex-1" style="margin:0;"><input type="text" id="newAccountName"
+                                    placeholder="Name"></div>
+                            <div class="input-modern flex-1" style="margin:0;"><input type="number"
+                                    id="newAccountBalance" placeholder="₹ Start Bal"></div>
                         </div>
-                        <div id="accountList" class="list-container">
-
-                        </div>
+                        <button class="btn-primary full-width mb-3" id="addAccountBtn">Create Account</button>
+                        <div id="accountList" class="list-container smooth-scroll"></div>
                     </div>
 
-
-                    <div class="option-section">
-                        <h3>Export Transactions</h3>
-                        <div class="date-range-container">
-                            <div class="input-group-add">
-                                <label for="startDate">Start Date</label>
-                                <input type="date" id="startDate">
+                    <div class="widget-card">
+                        <h3>Export Data</h3>
+                        <div class="flex-row gap-half mb-4">
+                            <div class="input-modern flex-1" style="margin:0;">
+                                <label class="micro-label">Start</label>
+                                <input type="date" id="startDate" class="b-0 pl-0">
                             </div>
-                            <div class="input-group-add">
-                                <label for="endDate">End Date</label>
-                                <input type="date" id="endDate">
+                            <div class="input-modern flex-1" style="margin:0;">
+                                <label class="micro-label">End</label>
+                                <input type="date" id="endDate" class="b-0 pl-0">
                             </div>
                         </div>
-                        <button class="on-btn" id="exportCSVBtn">
-                            <i class="fas fa-download"></i> Download CSV
+                        <button class="btn-secondary full-width" id="exportCSVBtn">
+                            <i class="fas fa-download"></i> Download CSV Activity
                         </button>
                     </div>
+
                 </div>
             </div>
         </div>

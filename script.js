@@ -5,7 +5,7 @@ import { ref, set, get, onValue, update, remove } from "https://www.gstatic.com/
 // DOM Elements
 const authContainer = document.getElementById("auth-container");
 const mainContent = document.getElementById("main-content");
-const googleSignInBtn = document.getElementById("google-signin-btn");
+const googleSignInBtns = document.querySelectorAll(".google-signin-btn");
 const loginBtn = document.getElementById("login-btn");
 const signupBtn = document.getElementById("signup-btn");
 const showSignup = document.getElementById("show-signup");
@@ -21,17 +21,19 @@ const messageContainerSignup = document.getElementById("message-container-signup
 const signOutButton = document.getElementById("signout-btn");
 const addTBtn = document.getElementById("addsubmitBtn");
 // Handle Google Sign-In
-googleSignInBtn.addEventListener("click", () => {
-    signInWithPopup(auth, provider)
-        .then((result) => {
-            const user = result.user;
-            displayMessage(messageContainer, `Welcome, ${user.displayName}!`, 'success');
-            saveUserDataToDb(user); // Save user to Realtime Database
-        })
-        .catch((error) => {
-            console.error(error);
-            displayMessage(messageContainer, "Google Sign-In failed. Please try again.", 'error');
-        });
+googleSignInBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+        signInWithPopup(auth, provider)
+            .then((result) => {
+                const user = result.user;
+                displayMessage(messageContainer, `Welcome, ${user.displayName}!`, 'success');
+                saveUserDataToDb(user); // Save user to Realtime Database
+            })
+            .catch((error) => {
+                console.error(error);
+                displayMessage(messageContainer, "Google Sign-In failed. Please try again.", 'error');
+            });
+    });
 });
 
 // Handle Email/Password Login
@@ -140,7 +142,7 @@ showLogin.addEventListener("click", () => {
 onAuthStateChanged(auth, (user) => {
     if (user) {
         authContainer.style.display = "none";
-        mainContent.style.display = "block";
+        mainContent.style.display = "flex";
 
         // Listen for real-time changes in the user's data
         const userRef = ref(realTimeDb, `users/${user.uid}`);
@@ -186,8 +188,63 @@ signOutButton.addEventListener("click", () => {
 
 document.documentElement.style.setProperty('--box-count', document.querySelectorAll('.content-box').length);
 
+// Theme Toggle Logic
+const themeBtns = document.querySelectorAll('#theme-toggle-btn, #mobile-theme-toggle');
+if (themeBtns.length > 0) {
+    const savedTheme = localStorage.getItem('kharchawise_theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcons(savedTheme);
+    updateChartTheme(savedTheme);
 
+    themeBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('kharchawise_theme', newTheme);
+            updateThemeIcons(newTheme);
+            updateChartTheme(newTheme);
+        });
+    });
 
+    function updateThemeIcons(theme) {
+        themeBtns.forEach(btn => {
+            const icon = btn.querySelector('i');
+            if (icon) {
+                if (theme === 'dark') {
+                    icon.className = 'fas fa-sun';
+                } else {
+                    icon.className = 'fas fa-moon';
+                }
+            }
+        });
+    }
+
+    function updateChartTheme(theme) {
+        try {
+            if (typeof Chart !== 'undefined') {
+                const textColor = theme === 'dark' ? '#cbd5e1' : '#475569';
+                const gridColor = theme === 'dark' ? '#334155' : '#e2e8f0';
+                Chart.defaults.color = textColor;
+                if (Chart.defaults.scale && Chart.defaults.scale.grid) {
+                    Chart.defaults.scale.grid.color = gridColor;
+                }
+                if (window.pieChart) window.pieChart.update();
+                if (window.barChart) window.barChart.update();
+                if (window.budgetChart) window.budgetChart.update();
+            }
+        } catch (e) {
+            console.warn("Chart.js theme update failed: ", e);
+        }
+    }
+}
+
+// Set Current Date Display
+const dateDisplay = document.getElementById('current-date-display');
+if (dateDisplay) {
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    dateDisplay.textContent = new Date().toLocaleDateString(undefined, options);
+}
 
 // add
 document.getElementById('addNewBtn').addEventListener('click', function () {
@@ -461,26 +518,28 @@ function updateBalanceDisplay(user) {
 
             // Calculate total balance
             const totalBalance = Object.values(accounts).reduce((sum, balance) => sum + balance, 0);
-            totalBalanceElement.textContent = `Total Balance: ₹${totalBalance}`;
+            totalBalanceElement.textContent = `₹${totalBalance}`;
 
-            // Clear existing account list
-            accountListElement.innerHTML = '';
+            // Clear list and add 2-column header + scroll wrapper
+            accountListElement.innerHTML = `
+                <div style="display: flex; justify-content: space-between; padding: 0 10px 8px; margin-bottom: 5px; border-bottom: 1px solid var(--border-glass); color: var(--text-muted); font-size: 0.85rem; font-weight: 600; text-transform: uppercase;">
+                    <span></span>
+                    <span></span>
+                </div>
+                <div id="accountsScrollWrapper" style="display: flex; flex-direction: column; gap: 8px; overflow-y: auto; max-height: 105px; padding-right: 5px;"></div>
+            `;
+            const wrapper = document.getElementById('accountsScrollWrapper');
 
             // Add individual account balances
             Object.entries(accounts).forEach(([accountName, balance]) => {
                 const accountItem = document.createElement('div');
-                accountItem.className = 'account-item';
-
-                const nameSpan = document.createElement('span');
-                nameSpan.className = 'account-name';
-                nameSpan.textContent = accountName;
-
-                const balanceSpan = document.createElement('span');
-                balanceSpan.textContent = `₹${balance}`;
-
-                accountItem.appendChild(nameSpan);
-                accountItem.appendChild(balanceSpan);
-                accountListElement.appendChild(accountItem);
+                accountItem.className = 'list-item glassmorphism';
+                accountItem.style.padding = '8px 12px';
+                accountItem.innerHTML = `
+                    <span class="account-name font-bold" style="text-transform: capitalize;">${accountName.replace('_', ' ')}</span>
+                    <span class="account-bal font-bold" style="color: var(--text-main);">₹${balance}</span>
+                `;
+                wrapper.appendChild(accountItem);
             });
         } else {
             totalBalanceElement.textContent = 'Total Balance: ₹0';
@@ -520,12 +579,39 @@ navButtons.forEach(button => {
 
 let currentPage = 1;
 const transactionsPerPage = 6;
+let allTransactions = [];
 
 function initializeTransactionHistory() {
     loadTransactions();
 
     document.getElementById('prevPage').addEventListener('click', () => changePage(-1));
     document.getElementById('nextPage').addEventListener('click', () => changePage(1));
+
+    const searchInput = document.getElementById('searchInput');
+    const typeFilter = document.getElementById('typeFilter');
+    const categoryFilter = document.getElementById('categoryFilter');
+
+    if (searchInput) searchInput.addEventListener('input', () => { currentPage = 1; applyFilters(); });
+    if (typeFilter) typeFilter.addEventListener('change', () => { currentPage = 1; applyFilters(); });
+    if (categoryFilter) categoryFilter.addEventListener('change', () => { currentPage = 1; applyFilters(); });
+}
+
+function applyFilters() {
+    const searchTerm = document.getElementById('searchInput') ? document.getElementById('searchInput').value.toLowerCase() : '';
+    const typeFilter = document.getElementById('typeFilter') ? document.getElementById('typeFilter').value : 'All';
+    const categoryFilter = document.getElementById('categoryFilter') ? document.getElementById('categoryFilter').value : 'All';
+
+    const filtered = allTransactions.filter(t => {
+        const matchesSearch = (t.description && t.description.toLowerCase().includes(searchTerm)) ||
+            (t.expense_category && t.expense_category.toLowerCase().includes(searchTerm)) ||
+            (t.from_account && t.from_account.toLowerCase().includes(searchTerm));
+        const matchesType = typeFilter === 'All' || t.transaction_type === typeFilter;
+        const matchesCat = categoryFilter === 'All' || t.expense_category === categoryFilter;
+        return matchesSearch && matchesType && matchesCat;
+    });
+
+    displayTransactions(filtered);
+    updatePaginationControls(filtered.length);
 }
 
 function loadTransactions() {
@@ -544,10 +630,22 @@ function loadTransactions() {
             });
 
             transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+            allTransactions = transactions;
 
-            displayTransactions(transactions);
-            updatePaginationControls(transactions.length);
+            const categoryFilter = document.getElementById('categoryFilter');
+            if (categoryFilter) {
+                const currentVal = categoryFilter.value || 'All';
+                const uniqueCategories = [...new Set(allTransactions.map(t => t.expense_category).filter(Boolean))];
+                categoryFilter.innerHTML = '<option value="All">All Categories</option>' +
+                    uniqueCategories.map(c => `<option value="${c}">${c}</option>`).join('');
+                if (uniqueCategories.includes(currentVal)) {
+                    categoryFilter.value = currentVal;
+                }
+            }
+
+            applyFilters();
         } else {
+            allTransactions = [];
             const transactionsList = document.getElementById('transactionsList');
             transactionsList.innerHTML = '<div class="no-transactions">No transactions found</div>';
             updatePaginationControls(0);
@@ -565,17 +663,18 @@ function displayTransactions(transactions) {
 
     // Create table view for larger screens
     const tableView = document.createElement('div');
-    tableView.className = 'transaction-table';
+    tableView.className = 'transaction-table-wrapper';
     tableView.innerHTML = `
-        <table>
+        <table class="transaction-table">
             <thead>
                 <tr>
                     <th>Date</th>
                     <th>Type</th>
                     <th>Amount</th>
                     <th>From</th>
-                    <th>To/Category</th>
-                    <th>Description</th>
+                    <th>To</th>
+                    <th>Category</th>
+                    <th class="hide-mobile">Description</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -593,13 +692,14 @@ function displayTransactions(transactions) {
             transaction.transaction_type === 'Expense' ? '-' : ''}
                             ₹${transaction.amount}
                         </td>
-                        <td>${transaction.from_account}</td>
-                        <td>${transaction.to_account || transaction.expense_category || '-'}</td>
-                        <td>${transaction.description || '-'}</td>
+                        <td>${transaction.from_account || '-'}</td>
+                        <td>${transaction.to_account || '-'}</td>
+                        <td>${transaction.expense_category || '-'}</td>
+                        <td class="hide-mobile desc-cell">${transaction.description || '-'}</td>
                         <td>
                             <div class="action-buttons">
-                                <button class="delete-btn" onclick="deleteTransaction('${transaction.id}')">
-                                    <i class="fas fa-trash"></i>
+                                <button class="delete-btn btn-danger-icon" onclick="deleteTransaction('${transaction.id}')">
+                                    <i class="fas fa-trash-alt"></i>
                                 </button>
                             </div>
                         </td>
@@ -615,63 +715,33 @@ function displayTransactions(transactions) {
 
     currentTransactions.forEach(transaction => {
         const card = document.createElement('div');
-        card.className = 'transaction-item';
+        card.className = 'transaction-item mb-2';
 
         const amountPrefix = transaction.transaction_type === 'Income' ? '+' :
             transaction.transaction_type === 'Expense' ? '-' : '';
 
+        const iconClass = transaction.transaction_type === 'Expense' ? 'fa-arrow-down' :
+            (transaction.transaction_type === 'Income' ? 'fa-arrow-up' : 'fa-exchange-alt');
+        const colorClass = transaction.transaction_type.toLowerCase();
+
         card.innerHTML = `
-            <div class="transaction-header">
-                <div class="transaction-main-info">
-                    <span class="transaction-type type-${transaction.transaction_type.toLowerCase()}">${transaction.transaction_type}</span>
-                    <span class="transaction-amount ${transaction.transaction_type.toLowerCase()}">
-                        ${amountPrefix}₹${transaction.amount}
-                    </span>
+            <div class="transaction-card glassmorphism" style="display:flex; justify-content:space-between; align-items:center; width: 100%;">
+                <div class="t-icon ${colorClass}" style="margin-right: 15px;">
+                    <i class="fas ${iconClass}"></i>
                 </div>
-                <button class="toggle-details-btn">
-                    <span class="transaction-date-main">${formatDateShort(transaction.date)}</span>
-                    <i class="fas fa-chevron-down"></i>
-                </button>
-            </div>
-            <div class="transaction-details">
-                <div class="detail-row">
-                    <span class="detail-label">Date:</span>
-                    <span class="detail-value">${formatDate(transaction.date)}</span>
+                <div class="t-details" style="flex:1;">
+                    <div class="t-title font-bold">${transaction.expense_category || transaction.to_account || 'Transaction'}</div>
+                    <div class="t-meta text-muted" style="font-size: 0.8rem;">${transaction.from_account || '-'} • ${formatDateShort(transaction.date)}</div>
+                    ${transaction.description ? `<div class="t-desc" style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;"><i class="fas fa-align-left"></i> ${transaction.description}</div>` : ''}
                 </div>
-                <div class="detail-row">
-                    <span class="detail-label">From Account:</span>
-                    <span class="detail-value">${transaction.from_account}</span>
-                </div>
-                ${transaction.to_account ? `
-                <div class="detail-row">
-                    <span class="detail-label">To Account:</span>
-                    <span class="detail-value">${transaction.to_account}</span>
-                </div>
-                ` : ''}
-                ${transaction.expense_category ? `
-                <div class="detail-row">
-                    <span class="detail-label">Category:</span>
-                    <span class="detail-value">${transaction.expense_category}</span>
-                </div>
-                ` : ''}
-                <div class="detail-row">
-                    <span class="detail-label">Description:</span>
-                    <span class="detail-value">${transaction.description || '-'}</span>
-                </div>
-                <div class="action-buttons">
-                    <button class="delete-btn" onclick="deleteTransaction('${transaction.id}')">Delete</button>
+                <div class="t-actions-right" style="display:flex; flex-direction:column; align-items:flex-end; justify-content: space-between;">
+                    <div class="t-amount amount ${colorClass} font-bold" style="margin-bottom: 8px;">${amountPrefix}₹${transaction.amount}</div>
+                    <button class="delete-btn btn-danger-icon" onclick="deleteTransaction('${transaction.id}')" style="width:28px; height:28px; padding:0;">
+                        <i class="fas fa-trash-alt" style="font-size:0.8rem;"></i>
+                    </button>
                 </div>
             </div>
         `;
-
-        const toggleBtn = card.querySelector('.toggle-details-btn');
-        const details = card.querySelector('.transaction-details');
-        toggleBtn.addEventListener('click', () => {
-            details.classList.toggle('show');
-            toggleBtn.querySelector('i').classList.toggle('fa-chevron-up');
-            toggleBtn.querySelector('i').classList.toggle('fa-chevron-down');
-        });
-
         cardView.appendChild(card);
     });
 
@@ -708,7 +778,7 @@ function formatDate(dateString) {
 
 function changePage(step) {
     currentPage += step;
-    loadTransactions();
+    applyFilters();
 }
 
 
@@ -811,7 +881,7 @@ function initializeMoreOptions() {
     // Set default dates
     const today = new Date();
     const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    
+
     document.getElementById('startDate').value = firstDayOfMonth.toISOString().split('T')[0];
     document.getElementById('endDate').value = today.toISOString().split('T')[0];
 
@@ -847,7 +917,7 @@ async function addNewExpenseType() {
 
         categories.push(newType);
         await set(categoriesRef, categories);
-        
+
         document.getElementById('newExpenseType').value = '';
         loadExpenseTypes();
     } catch (error) {
@@ -878,7 +948,7 @@ async function addNewAccount() {
         }
 
         await set(accountRef, balance);
-        
+
         document.getElementById('newAccountName').value = '';
         document.getElementById('newAccountBalance').value = '';
         loadAccounts();
@@ -900,11 +970,11 @@ function loadExpenseTypes() {
 
         categories.forEach(category => {
             const div = document.createElement('div');
-            div.className = 'list-item';
+            div.className = 'list-item glassmorphism';
             div.innerHTML = `
-                <span>${category}</span>
-                <button class="delete-item-btn" onclick="deleteExpenseType('${category}')">
-                    <i class="fas fa-trash"></i>
+                <span class="item-name">${category}</span>
+                <button class="delete-item-btn btn-danger-icon" onclick="deleteExpenseType('${category}')">
+                    <i class="fas fa-trash-alt"></i>
                 </button>
             `;
             container.appendChild(div);
@@ -920,15 +990,16 @@ function loadAccounts() {
     onValue(accountsRef, (snapshot) => {
         const accounts = snapshot.val() || {};
         const container = document.getElementById('accountList');
+        if (!container) return;
         container.innerHTML = '';
 
         Object.entries(accounts).forEach(([account, balance]) => {
             const div = document.createElement('div');
-            div.className = 'list-item';
+            div.className = 'list-item glassmorphism';
             div.innerHTML = `
-                <span>${account} (₹${balance})</span>
-                <button class="delete-item-btn" onclick="deleteAccount('${account}')">
-                    <i class="fas fa-trash"></i>
+                <span class="item-name">${account} <span class="item-bal text-primary font-bold">(₹${balance})</span></span>
+                <button class="delete-item-btn btn-danger-icon" onclick="deleteAccount('${account}')">
+                    <i class="fas fa-trash-alt"></i>
                 </button>
             `;
             container.appendChild(div);
@@ -936,7 +1007,7 @@ function loadAccounts() {
     });
 }
 
-window.deleteExpenseType = async function(category) {
+window.deleteExpenseType = async function (category) {
     const user = auth.currentUser;
     if (!user) return;
 
@@ -955,7 +1026,7 @@ window.deleteExpenseType = async function(category) {
     }
 }
 
-window.deleteAccount = async function(account) {
+window.deleteAccount = async function (account) {
     const user = auth.currentUser;
     if (!user) return;
 
@@ -1067,14 +1138,14 @@ function initializeAnalysis() {
 async function updatePieChart() {
     const month = parseInt(document.getElementById('pieChartMonth').value);
     const year = parseInt(document.getElementById('pieChartYear').value);
-    
+
     try {
         const user = auth.currentUser;
         if (!user) return;
 
         const transactionsRef = ref(realTimeDb, `user_transaction/${user.uid}`);
         const snapshot = await get(transactionsRef);
-        
+
         const categoryMap = new Map();
         let totalExpense = 0;
 
@@ -1082,9 +1153,9 @@ async function updatePieChart() {
             snapshot.forEach((childSnapshot) => {
                 const transaction = childSnapshot.val();
                 const transactionDate = new Date(transaction.date);
-                
-                if (transactionDate.getMonth() === month && 
-                    transactionDate.getFullYear() === year && 
+
+                if (transactionDate.getMonth() === month &&
+                    transactionDate.getFullYear() === year &&
                     transaction.transaction_type === 'Expense') {
                     const category = transaction.expense_category;
                     const amount = transaction.amount;
@@ -1096,7 +1167,7 @@ async function updatePieChart() {
 
         const labels = Array.from(categoryMap.keys());
         const data = Array.from(categoryMap.values());
-        
+
         // Generate colors based on the number of categories
         const colors = getColorArray(labels.length);
 
@@ -1113,14 +1184,14 @@ async function updatePieChart() {
 
 async function updateBarChart() {
     const year = parseInt(document.getElementById('barChartYear').value);
-    
+
     try {
         const user = auth.currentUser;
         if (!user) return;
 
         const transactionsRef = ref(realTimeDb, `user_transaction/${user.uid}`);
         const snapshot = await get(transactionsRef);
-        
+
         const monthlyData = Array(12).fill().map(() => ({ income: 0, expense: 0 }));
         let totalIncome = 0;
         let totalExpense = 0;
@@ -1129,10 +1200,10 @@ async function updateBarChart() {
             snapshot.forEach((childSnapshot) => {
                 const transaction = childSnapshot.val();
                 const transactionDate = new Date(transaction.date);
-                
+
                 if (transactionDate.getFullYear() === year) {
                     const month = transactionDate.getMonth();
-                    
+
                     if (transaction.transaction_type === 'Income') {
                         monthlyData[month].income += transaction.amount;
                         totalIncome += transaction.amount;
@@ -1180,7 +1251,7 @@ function createPieChart() {
             labels: [],
             datasets: [{
                 data: [],
-                backgroundColor: [] 
+                backgroundColor: []
             }]
         },
         options: {
@@ -1204,8 +1275,8 @@ function createBarChart() {
     barChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
             datasets: [
                 {
                     label: 'Income',
@@ -1246,7 +1317,7 @@ function createBarChart() {
 }
 
 // Initialize when analyze modal is opened
-document.querySelector('[data-modal="analyze"]').addEventListener('click', function() {
+document.querySelector('[data-modal="analyze"]').addEventListener('click', function () {
     if (!pieChart || !barChart) {
         initializeAnalysis();
     }
@@ -1312,7 +1383,7 @@ async function setBudget() {
         // Determine active months
         let activeMonths;
         if (monthSelection === 'all') {
-            activeMonths = Array.from({length: 12}, (_, i) => i.toString()); // 0-11 for all months
+            activeMonths = Array.from({ length: 12 }, (_, i) => i.toString()); // 0-11 for all months
         } else {
             activeMonths = [monthSelection];
         }
@@ -1363,24 +1434,24 @@ function displayCurrentBudgets() {
 
     const selectedMonth = document.getElementById('currentBudgetMonth').value;
     const budgetListContainer = document.getElementById('budgetList');
-    
+
     const budgetRef = ref(realTimeDb, `user_budget/${user.uid}`);
     onValue(budgetRef, (snapshot) => {
         budgetListContainer.innerHTML = '';
 
         if (snapshot.exists()) {
             const budgets = snapshot.val();
-            
+
             Object.entries(budgets).forEach(([category, budgetData]) => {
                 let shouldDisplay = false;
 
                 if (selectedMonth === 'all') {
- 
+
                     shouldDisplay = budgetData.active_months.length >= 2;
                 } else {
 
-                    shouldDisplay = budgetData.active_months.length === 12 || 
-                                  budgetData.active_months.includes(selectedMonth);
+                    shouldDisplay = budgetData.active_months.length === 12 ||
+                        budgetData.active_months.includes(selectedMonth);
                 }
 
                 if (shouldDisplay) {
@@ -1431,27 +1502,27 @@ async function deleteBudget(category, month) {
             const budgetData = snapshot.val();
 
             if (month === 'all') {
-            
+
                 await remove(budgetRef);
             } else {
-      
+
                 let activeMonths = budgetData.active_months;
-                
+
 
                 activeMonths = activeMonths.filter(m => m !== month);
-                
+
                 if (activeMonths.length === 0) {
-            
+
                     await remove(budgetRef);
                 } else {
-                   
+
                     await update(budgetRef, {
                         active_months: activeMonths
                     });
                 }
             }
 
-            
+
             displayCurrentBudgets();
         }
     } catch (error) {
@@ -1469,7 +1540,7 @@ function initializeCurrentBudgets() {
     const currentBudgetMonth = document.getElementById('currentBudgetMonth');
     currentBudgetMonth.value = currentMonth;
 
-    
+
     currentBudgetMonth.addEventListener('change', displayCurrentBudgets);
 
 
@@ -1487,7 +1558,7 @@ let budgetChart = null;
 function initializeBudgetAnalysis() {
     // Create initial chart
     createBudgetChart();
-    
+
     // Set current year in year dropdown
     const yearDropdown = document.getElementById('budgetAnalysisYear');
     const currentYear = new Date().getFullYear();
@@ -1497,11 +1568,11 @@ function initializeBudgetAnalysis() {
         option.textContent = year;
         yearDropdown.appendChild(option);
     }
-    
+
     // Add event listeners
     document.getElementById('budgetAnalysisMonth').addEventListener('change', updateBudgetAnalysis);
     document.getElementById('budgetAnalysisYear').addEventListener('change', updateBudgetAnalysis);
-    
+
     // Initial update
     updateBudgetAnalysis();
 }
@@ -1551,19 +1622,19 @@ async function updateBudgetAnalysis() {
         // Get budgets
         const budgetRef = ref(realTimeDb, `user_budget/${user.uid}`);
         const budgetSnapshot = await get(budgetRef);
-        
+
         // Get transactions
         const transactionRef = ref(realTimeDb, `user_transaction/${user.uid}`);
         const transactionSnapshot = await get(transactionRef);
 
         let budgetData = {};
         let expenseData = {};
-        
+
         // Process budgets
         if (budgetSnapshot.exists()) {
             const budgets = budgetSnapshot.val();
             Object.entries(budgets).forEach(([category, budget]) => {
-                if (budget.year === selectedYear && 
+                if (budget.year === selectedYear &&
                     (selectedMonth === 'all' || budget.active_months.includes(selectedMonth))) {
                     budgetData[category] = budget.amount;
                 }
@@ -1573,24 +1644,24 @@ async function updateBudgetAnalysis() {
         // Process expenses
         if (transactionSnapshot.exists()) {
             const transactions = transactionSnapshot.val();
-            
+
             // Calculate total expenses for all categories first
             let totalExpenses = 0;
-            
+
             Object.values(transactions).forEach(transaction => {
                 if (transaction.transaction_type === 'Expense') {
                     const transactionDate = new Date(transaction.date);
                     const transactionMonth = transactionDate.getMonth().toString();
                     const transactionYear = transactionDate.getFullYear();
 
-                    if (transactionYear === selectedYear && 
+                    if (transactionYear === selectedYear &&
                         (selectedMonth === 'all' || transactionMonth === selectedMonth)) {
                         // Add to total expenses
                         totalExpenses += transaction.amount;
-                        
+
                         // Add to category-specific expenses if budget exists for that category
                         if (budgetData.hasOwnProperty(transaction.expense_category)) {
-                            expenseData[transaction.expense_category] = 
+                            expenseData[transaction.expense_category] =
                                 (expenseData[transaction.expense_category] || 0) + transaction.amount;
                         }
                     }
