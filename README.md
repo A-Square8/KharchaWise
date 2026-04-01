@@ -2,6 +2,10 @@
 
 KharchaWise is a simple app to track your money. It helps you see how much you earn and how much you spend. The design is clean and easy to use.
 
+# Demo account
+- Email Address : test01@gmail.com
+- Password : test01
+
 ## Features
 
 **Dashboard Overview**  
@@ -34,6 +38,23 @@ You can use the app on your computer or on your phone perfectly. It fits on any 
 - Firebase Authentication
 
 ## Screenshots
+- Dashboard
+<img width="1911" height="894" alt="image" src="https://github.com/user-attachments/assets/f58932c1-9820-45e1-a3e6-fef1886eb973" />
 
+-New transaction from
+<img width="884" height="870" alt="image" src="https://github.com/user-attachments/assets/bcadae5b-b635-44ef-b8b7-e97bd4d18876" />
 
+-Analytics dashboard
+<img width="884" height="870" alt="image" src="https://github.com/user-attachments/assets/ba0c6fd9-9ec6-419f-b816-716e31e1a030" />
 
+-Budget controls
+<img width="735" height="831" alt="image" src="https://github.com/user-attachments/assets/9a3d09f6-f649-4af1-9527-6f658548e71d" />
+
+-Settings
+<img width="735" height="831" alt="image" src="https://github.com/user-attachments/assets/1cc3c793-d2a4-4437-bdd2-ad5f05319f1d" />
+
+- Mobile view
+<img width="883" height="1600" alt="image" src="https://github.com/user-attachments/assets/a46c3e59-0837-4ba8-9cd3-0359b86c2d2d" />
+
+- Light mode
+<img width="1910" height="895" alt="image" src="https://github.com/user-attachments/assets/707ca540-bc0a-4552-a78d-447659d0fb95" />
