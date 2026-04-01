@@ -523,3 +523,23 @@ body {
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
+
+/* Viewer Mode Specifics */
+body.role-viewer .fab { display: none !important; }
+body.role-viewer .t-actions-right .delete-btn { display: none !important; }
+body.role-viewer .action-buttons .delete-btn { display: none !important; }
+body.role-viewer .quick-action-grid { opacity: 0.8; }
+
+.dashboard-charts-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+    .dashboard-charts-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+

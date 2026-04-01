@@ -1,4 +1,4 @@
-// handle authorization and main UI interactions
+
 import { auth, provider, realTimeDb } from "./firebase.js";
 import { signInWithPopup, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 import { ref, set, get, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
@@ -27,7 +27,7 @@ googleSignInBtns.forEach(btn => {
             .then((result) => {
                 const user = result.user;
                 displayMessage(messageContainer, `Welcome, ${user.displayName}!`, 'success');
-                saveUserDataToDb(user); 
+                saveUserDataToDb(user);
             })
             .catch((error) => {
                 console.error(error);
@@ -97,14 +97,14 @@ function saveUserDataToDb(user) {
                 user_account: {
                     cash: 0,
                     bank: 0
-                }, 
+                },
                 user_shop_category: [
                     "Rent", "EMI", "Groceries", "Utility bills", "Education expenses",
                     "Transportation", "Health insurance", "Medical expenses", "Household maintenance",
                     "Internet bills", "Mobile bills", "Entertainment", "Recreation", "Dining out",
                     "Savings", "Investments", "Loan repayments", "Clothing", "Festivals", "Celebrations",
                     "Gifts", "Donations", "Travel", "Vacations", "Childcare expenses", "Emergency fund contributions"
-                ], 
+                ],
 
             })
                 .then(() => {
@@ -602,6 +602,7 @@ function loadTransactions() {
             }
 
             applyFilters();
+            if (typeof updateDashboardOverview === 'function') updateDashboardOverview(allTransactions);
         } else {
             allTransactions = [];
             const transactionsList = document.getElementById('transactionsList');
@@ -1261,7 +1262,7 @@ function populateBudgetCategories() {
     if (!user) return;
 
     const budgetCategorySelect = document.getElementById('budgetCategory');
-    budgetCategorySelect.innerHTML = ''; 
+    budgetCategorySelect.innerHTML = '';
 
     const allOption = document.createElement('option');
     allOption.value = 'all';
@@ -1304,7 +1305,7 @@ async function setBudget() {
 
         let activeMonths;
         if (monthSelection === 'all') {
-            activeMonths = Array.from({ length: 12 }, (_, i) => i.toString()); 
+            activeMonths = Array.from({ length: 12 }, (_, i) => i.toString());
         } else {
             activeMonths = [monthSelection];
         }
@@ -1587,3 +1588,154 @@ document.querySelector('[data-modal="budget"]').addEventListener('click', () => 
         updateBudgetAnalysis();
     }
 });
+
+
+const roleToggle = document.getElementById('roleToggle');
+if (roleToggle) {
+    roleToggle.addEventListener('change', (e) => {
+        if (e.target.value === 'Viewer') {
+            document.body.classList.add('role-viewer');
+        } else {
+            document.body.classList.remove('role-viewer');
+        }
+    });
+}
+
+let dashBarChartInstance = null;
+let dashPieChartInstance = null;
+
+window.updateDashboardOverview = function (transactions) {
+    let inc = 0, exp = 0;
+    let catTotals = {};
+    let monthlyTotals = {};
+
+    transactions.forEach(t => {
+        const amt = parseFloat(t.amount) || 0;
+        const dDate = new Date(t.date);
+        const yMonth = dDate.getFullYear() + '-' + String(dDate.getMonth() + 1).padStart(2, '0');
+
+        if (!monthlyTotals[yMonth]) monthlyTotals[yMonth] = { inc: 0, exp: 0 };
+
+        if (t.transaction_type === 'Income') {
+            inc += amt;
+            monthlyTotals[yMonth].inc += amt;
+        } else if (t.transaction_type === 'Expense') {
+            exp += amt;
+            monthlyTotals[yMonth].exp += amt;
+
+            const cat = t.expense_category || 'Other';
+            catTotals[cat] = (catTotals[cat] || 0) + amt;
+        }
+    });
+
+    const dashIncome = document.getElementById('dashIncome');
+    const dashExpense = document.getElementById('dashExpense');
+    if (dashIncome) dashIncome.textContent = '₹' + inc.toLocaleString('en-IN');
+    if (dashExpense) dashExpense.textContent = '₹' + exp.toLocaleString('en-IN');
+
+    let highestCat = '-';
+    let maxCatVal = 0;
+    Object.entries(catTotals).forEach(([k, v]) => {
+        if (v > maxCatVal) { maxCatVal = v; highestCat = k; }
+    });
+    const iHighest = document.getElementById('insightHighestCat');
+    if (iHighest) iHighest.textContent = maxCatVal > 0 ? `${highestCat} (₹${maxCatVal.toLocaleString('en-IN')})` : '-';
+
+    const now = new Date();
+    const currYMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+    const prevDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const prevYMonth = prevDate.getFullYear() + '-' + String(prevDate.getMonth() + 1).padStart(2, '0');
+
+    const currData = monthlyTotals[currYMonth] || { inc: 0, exp: 0 };
+    const prevData = monthlyTotals[prevYMonth] || { inc: 0, exp: 0 };
+
+    const iMonthly = document.getElementById('insightMonthly');
+    if (iMonthly) {
+        if (currData.exp > prevData.exp && prevData.exp > 0) {
+            iMonthly.innerHTML = `<span class="text-danger"><i class="fas fa-arrow-up"></i> Higher expenses</span> this month vs last.`;
+        } else if (currData.exp < prevData.exp && prevData.exp > 0) {
+            iMonthly.innerHTML = `<span class="text-success"><i class="fas fa-arrow-down"></i> Lower expenses</span> this month vs last.`;
+        } else {
+            iMonthly.textContent = 'Not enough data.';
+        }
+    }
+
+    const iObs = document.getElementById('insightObservation');
+    if (iObs) {
+        if (exp > inc && inc > 0) {
+            iObs.textContent = 'Warning: Total expenses exceed income.';
+            iObs.className = 'font-bold text-danger';
+        } else if (inc > exp && inc > 0) {
+            let saveRate = (((inc - exp) / inc) * 100).toFixed(1);
+            iObs.textContent = `Great! You are saving ${saveRate}% of your income.`;
+            iObs.className = 'font-bold text-success';
+        } else {
+            iObs.textContent = 'Keep tracking to unlock insights.';
+            iObs.className = 'font-bold text-primary';
+        }
+    }
+
+    drawDashboardCharts(monthlyTotals, catTotals);
+};
+
+function drawDashboardCharts(monthlyTotals, catTotals) {
+    if (typeof Chart === 'undefined') return;
+
+    const pieCtx = document.getElementById('dashPieChart');
+    if (pieCtx) {
+        if (dashPieChartInstance) dashPieChartInstance.destroy();
+        const labels = Object.keys(catTotals);
+        const data = Object.values(catTotals);
+        dashPieChartInstance = new Chart(pieCtx, {
+            type: 'doughnut',
+            data: {
+                labels: labels.length ? labels : ['None'],
+                datasets: [{
+                    data: data.length ? data : [1],
+                    backgroundColor: data.length ? ['#ef4444', '#f59e0b', '#10b981', '#6366f1', '#8b5cf6', '#ec4899', '#0ea5e9'] : ['#e2e8f0'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }
+                },
+                cutout: '70%'
+            }
+        });
+    }
+
+    const barCtx = document.getElementById('dashBarChart');
+    if (barCtx) {
+        if (dashBarChartInstance) dashBarChartInstance.destroy();
+        const sortedMonths = Object.keys(monthlyTotals).sort().slice(-6);
+        const labels = sortedMonths.map(m => {
+            const [y, mm] = m.split('-');
+            const d = new Date(y, parseInt(mm) - 1, 1);
+            return d.toLocaleString('en-IN', { month: 'short' });
+        });
+        const incData = sortedMonths.map(m => monthlyTotals[m].inc);
+        const expData = sortedMonths.map(m => monthlyTotals[m].exp);
+
+        dashBarChartInstance = new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: labels.length ? labels : ['Curr'],
+                datasets: [
+                    { label: 'Income', data: incData.length ? incData : [0], backgroundColor: '#10b981', borderRadius: 4 },
+                    { label: 'Expense', data: expData.length ? expData : [0], backgroundColor: '#ef4444', borderRadius: 4 }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { beginAtZero: true, display: false }
+                }
+            }
+        });
+    }
+}

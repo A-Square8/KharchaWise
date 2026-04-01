@@ -1,4 +1,3 @@
-<!-- base layout for the application -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -121,13 +120,19 @@
                     <h2>Overview</h2>
                     <p class="subtitle" id="current-date-display">Welcome back</p>
                 </div>
-                <div class="header-actions mobile-only" style="display: flex; gap: 8px;">
-                    <button id="mobile-theme-toggle" class="app-icon-btn" title="Toggle Theme">
-                        <i class="fas fa-moon"></i>
-                    </button>
-                    <button id="mobile-signout-btn" class="app-icon-btn" title="Sign Out">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </button>
+                <div class="header-actions" style="display: flex; gap: 8px; align-items: center;">
+                    <select id="roleToggle" class="modern-select" style="padding: 4px 10px; font-size: 0.9rem;">
+                        <option value="Admin">Admin Mode</option>
+                        <option value="Viewer">Viewer Mode</option>
+                    </select>
+                    <div class="mobile-only" style="display: flex; gap: 8px;">
+                        <button id="mobile-theme-toggle" class="app-icon-btn" title="Toggle Theme">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        <button id="mobile-signout-btn" class="app-icon-btn" title="Sign Out">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
                 </div>
             </header>
 
@@ -140,6 +145,13 @@
                             <div class="balance-container slider-pane">
                                 <p class="card-subtitle">Total Net Worth</p>
                                 <h1 class="total-balance">₹0</h1>
+                                <div class="summary-stats-dash"
+                                    style="display: flex; gap: 1rem; margin-top: 10px; font-size: 0.95rem;">
+                                    <div><i class="fas fa-arrow-down text-success"></i> Income: <span id="dashIncome"
+                                            class="font-bold text-success">₹0</span></div>
+                                    <div><i class="fas fa-arrow-up text-danger"></i> Expenses: <span id="dashExpense"
+                                            class="font-bold text-danger">₹0</span></div>
+                                </div>
                             </div>
                             <div class="account-list slider-pane" style="transform: translateX(100%);">
 
@@ -148,6 +160,19 @@
                         <div class="slider-controls">
                             <button class="nav-btn active" data-frame="balance"></button>
                             <button class="nav-btn" data-frame="accounts"></button>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-charts-grid">
+                        <div class="widget-card glassmorphism" style="padding: 15px;">
+                            <h4 style="margin-bottom: 10px; font-size: 0.95rem;">Income vs Expenses</h4>
+                            <div class="chart-container" style="height: 180px; position: relative;"><canvas
+                                    id="dashBarChart"></canvas></div>
+                        </div>
+                        <div class="widget-card glassmorphism" style="padding: 15px;">
+                            <h4 style="margin-bottom: 10px; font-size: 0.95rem;">Category Pattern</h4>
+                            <div class="chart-container" style="height: 180px; position: relative;"><canvas
+                                    id="dashPieChart"></canvas></div>
                         </div>
                     </div>
 
@@ -185,6 +210,30 @@
                 </div>
 
                 <div class="dash-col side-col">
+
+                    <div class="widget-card glassmorphism mb-4" id="insightsWidget">
+                        <div class="widget-header">
+                            <h3>Insights & Trends</h3>
+                        </div>
+                        <div class="insights-content"
+                            style="display: flex; flex-direction: column; gap: 12px; margin-top: 5px;">
+                            <div class="insight-item">
+                                <span class="text-muted" style="font-size: 0.85rem;"><i
+                                        class="fas fa-fire text-danger"></i> Top Spending</span>
+                                <div id="insightHighestCat" class="font-bold">-</div>
+                            </div>
+                            <div class="insight-item">
+                                <span class="text-muted" style="font-size: 0.85rem;"><i
+                                        class="fas fa-balance-scale"></i> Comparison</span>
+                                <div id="insightMonthly" class="font-bold">-</div>
+                            </div>
+                            <div class="insight-item">
+                                <span class="text-muted" style="font-size: 0.85rem;"><i
+                                        class="fas fa-lightbulb text-warning"></i> Observation</span>
+                                <div id="insightObservation" class="font-bold text-primary">-</div>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="widget-card glassmorphism">
                         <div class="widget-header">
